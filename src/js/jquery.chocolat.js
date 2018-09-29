@@ -88,9 +88,11 @@
       this.$wrapper.fadeIn(this.opts.duration)
       this.$container.addClass('chocolat-open')
 
-      this.opts.timer = setTimeout(function() {
-        $.proxy(self.$loader.fadeIn(), self)
-      }, this.opts.duration)
+      if (this.opts.showLoader) {
+        this.opts.timer = setTimeout(function() {
+          $.proxy(self.$loader.fadeIn(), self)
+        }, this.opts.duration)
+      }
 
       var deferred = this.preload(i)
         .then(function(imgLoader) {
@@ -153,10 +155,15 @@
     appear: function(i) {
       var self = this
       clearTimeout(this.opts.timer)
-
-      this.$loader.stop().fadeOut(300, function() {
+      function showImage() {
         self.$img.attr('src', self.opts.images[i].src)
-      })
+      }
+
+      if (this.opts.showLoader) {
+        this.$loader.stop().fadeOut(300, showImage)
+      } else {
+        showImage()
+      }
     },
 
     fit: function(i, container) {
@@ -274,20 +281,21 @@
       }
     },
 
-    close: function() {
+    close: function(callback) {
       if (this.isFullScreen) {
         this.exitFullScreen()
         return
       }
 
-      var els = [this.$overlay[0], this.$loader[0], this.$wrapper[0]]
       var self = this
-      var def = $.when($(els).fadeOut(200)).done(function() {
-        self.$domContainer.removeClass('chocolat-open')
-      })
       this.opts.currentImage = false
-
-      return def
+      this.$overlay
+        .add(this.$loader)
+        .add(this.$wrapper)
+        .fadeOut(200, function() {
+          self.$domContainer.removeClass('chocolat-open')
+          callback && callback()
+        })
     },
 
     destroy: function() {
@@ -334,9 +342,11 @@
         class: 'chocolat-overlay',
       }).appendTo(this.$wrapper)
 
-      this.$loader = $('<div/>', {
-        class: 'chocolat-loader',
-      }).appendTo(this.$wrapper)
+      if (this.opts.showLoader) {
+        this.$loader = $('<div/>', {
+          class: 'chocolat-loader',
+        }).appendTo(this.$wrapper)
+      }
 
       this.$content = $('<div/>', {
         class: 'chocolat-content',
@@ -675,6 +685,7 @@
     timerDebounce: false,
     images: [],
     enableZoom: true,
+    showLoader: true,
     showPagination: true,
     imageSource: 'href',
     afterInitialize: function() {},
