@@ -673,10 +673,11 @@
       return $.data(this[0], 'chocolat')
     }
     return this.each(function() {
-      if (!$.data(this, 'chocolat')) {
-        var instance = new Chocolat($(this), $.extend(true, {}, defaults, opts))
-        $.data(this, 'chocolat', instance)
-      }
+      var instance = $.data(this, 'chocolat')
+      if (instance) instance.destroy()
+
+      instance = new Chocolat($(this), $.extend(true, {}, defaults, opts))
+      $.data(this, 'chocolat', instance)
     })
   }
 })
