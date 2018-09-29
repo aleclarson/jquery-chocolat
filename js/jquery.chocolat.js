@@ -78,7 +78,7 @@
       return this._load(i || 0)
     },
 
-    close: function(callback) {
+    close: function() {
       if (this.isFullScreen) {
         this.exitFullScreen()
         if (!this.opts.fullScreen) return
@@ -91,8 +91,8 @@
         .add(this.$wrapper)
         .fadeOut(200, function() {
           self.$container.removeClass(cssPre + 'open')
-          if (typeof callback == 'function') {
-            callback()
+          if (self.opts.onHide) {
+            self.opts.onHide(self)
           }
         })
     },
@@ -382,6 +382,9 @@
       var removeDelay = setTimeout(removePrevImage, 200)
       function removePrevImage() {
         self.$img[0].src = ''
+        if (self.opts.onHide) {
+          self.opts.onHide(self)
+        }
       }
 
       if (this.$loader) {
