@@ -25,6 +25,8 @@
     this.initialized = false
     this.currentImage = null
     this.isFullScreen = false
+    this.initialZoomState = null
+    this.eventNS = '.chocolat-' + this.id
 
     if (!this.opts.setTitle && $el.data('chocolat-title')) {
       this.opts.setTitle = $el.data('chocolat-title')
@@ -38,7 +40,7 @@
         height: false,
         width: false,
       })
-      $this.off('click.chocolat').on('click.chocolat', function(e) {
+      $this.on('click' + this.eventNS, function(e) {
         self.init(i)
         e.preventDefault()
       })
@@ -302,14 +304,20 @@
 
     destroy: function() {
       $el.removeData('chocolat')
-      $el.find(this.opts.imageSelector).off('click.chocolat')
-
       if (this.initialized) {
         this.initialized = false
         this.currentImage = null
+
         this.exitFullScreen()
+
         this.$container.removeClass(transientClasses.join(' '))
         this.$wrapper.remove()
+
+        // Remove event listeners
+        this._events.forEach(function(event) {
+          event.$target.off(event.type + this.eventNS)
+        }, this)
+        this._events = null
       }
     },
 
@@ -437,147 +445,108 @@
 
     events: function() {
       var self = this
-
-      $(document)
-        .off('keydown.chocolat')
-        .on('keydown.chocolat', function(e) {
-          if (self.initialized) {
-            if (e.keyCode == 37) {
-              self.change(-1)
-            } else if (e.keyCode == 39) {
-              self.change(1)
-            } else if (e.keyCode == 27) {
-              self.close()
-            }
-          }
-        })
-      // this.$wrapper.find('.chocolat-img')
-      //     .off('click.chocolat')
-      //     .on('click.chocolat', function(e) {
-      //         var currentImage = self.opts.images[self.currentImage];
-      //         if(currentImage.width > $(self.$wrapper).width() || currentImage.height > $(self.$wrapper).height() ){
-      //             self.toggleZoom(e);
-      //         }
-      // });
-
-      this.$wrapper
-        .find('.chocolat-right')
-        .off('click.chocolat')
-        .on('click.chocolat', function() {
-          self.change(+1)
-        })
-
-      this.$wrapper
-        .find('.chocolat-left')
-        .off('click.chocolat')
-        .on('click.chocolat', function() {
-          return self.change(-1)
-        })
-
-      $([this.$overlay[0], this.$close[0]])
-        .off('click.chocolat')
-        .on('click.chocolat', function() {
-          return self.close()
-        })
-
-      if (this.opts.fullScreen !== false) {
-        this.$fullscreen.off('click.chocolat').on('click.chocolat', function() {
-          if (self.opts.fullscreenOpen) {
-            self.exitFullScreen()
-            return
-          }
-
-          self.openFullScreen()
+      self._events = []
+      function on(target, type, fn) {
+        self._events.push({
+          $target: $(target).on(type + this.eventNS, fn.bind(self)),
+          type: type,
         })
       }
 
-      if (self.opts.backgroundClose) {
-        this.$overlay.off('click.chocolat').on('click.chocolat', function() {
-          return self.close()
-        })
-      }
-      this.$wrapper.off('click.chocolat').on('click.chocolat', function(e) {
-        return self.zoomOut(e)
+      on(window, 'resize', function() {
+        if (this.currentImage == null) return
+        var resize = function() {
+          var dims = this.fit(this.currentImage, this.$wrapper)
+          this.center(dims.width, dims.height, dims.left, dims.top, 0)
+          this.zoomable()
+        }.bind(this)
+        this.debounce(50, resize)
       })
 
-      this.$wrapper
-        .find('.chocolat-img')
-        .off('click.chocolat')
-        .on('click.chocolat', function(e) {
-          if (
-            self.opts.initialZoomState === null &&
-            self.$container.hasClass('chocolat-zoomable')
-          ) {
+      on(document, 'keydown', function(e) {
+        if (this.initialized && this.currentImage !== null) {
+          if (e.keyCode == 37) {
+            this.change(-1)
+          } else if (e.keyCode == 39) {
+            this.change(1)
+          } else if (e.keyCode == 27) {
+            this.close()
+          }
+        }
+      })
+
+      on(this.$next, 'click', function() {
+        this.change(+1)
+      })
+      on(this.$prev, 'click', function() {
+        this.change(-1)
+      })
+
+      on(this.$close, 'click', this.close)
+      if (this.opts.backgroundClose) {
+        on(this.$overlay, 'click', this.close)
+      }
+
+      if (this.$fullscreen) {
+        on(this.$fullscreen, 'click', function() {
+          if (this.isFullScreen) this.exitFullScreen()
+          else this.openFullScreen()
+        })
+      }
+
+      if (this.opts.enableZoom) {
+        on(this.$wrapper, 'mousemove touchmove', this.onZoomPan)
+        on(this.$wrapper, 'click', this.zoomOut)
+        on(this.$img, 'click', function(e) {
+          if (this.initialZoomState !== null) return
+          if (this.$container.hasClass('chocolat-zoomable')) {
             e.stopPropagation()
-            return self.zoomIn(e)
+            this.zoomIn(e)
           }
         })
+      }
+    },
 
-      this.$wrapper.mousemove(function(e) {
-        if (self.opts.initialZoomState === null) {
-          return
-        }
-        if (self.$img.is(':animated')) {
-          return
-        }
+    onZoomPan: function(e) {
+      if (this.initialZoomState === null) return
+      if (this.$img.is(':animated')) return
 
-        var pos = $(this).offset()
-        var height = $(this).height()
-        var width = $(this).width()
+      var pos = this.$wrapper.offset()
+      var height = this.$wrapper.height()
+      var width = this.$wrapper.width()
 
-        var currentImage = self.opts.images[self.currentImage]
-        var imgWidth = currentImage.width
-        var imgHeight = currentImage.height
+      var currentImage = this.opts.images[this.currentImage]
+      var imgWidth = currentImage.width
+      var imgHeight = currentImage.height
 
-        var coord = [
-          e.pageX - width / 2 - pos.left,
-          e.pageY - height / 2 - pos.top,
-        ]
+      var coord = [
+        e.pageX - width / 2 - pos.left,
+        e.pageY - height / 2 - pos.top,
+      ]
 
-        var mvtX = 0
-        if (imgWidth > width) {
-          var paddingX = self.opts.zoomedPaddingX(imgWidth, width)
-          mvtX = coord[0] / (width / 2)
-          mvtX = ((imgWidth - width) / 2 + paddingX) * mvtX
-        }
+      var mvtX = 0
+      if (imgWidth > width) {
+        var paddingX = this.opts.zoomedPaddingX(imgWidth, width)
+        mvtX = coord[0] / (width / 2)
+        mvtX = ((imgWidth - width) / 2 + paddingX) * mvtX
+      }
 
-        var mvtY = 0
-        if (imgHeight > height) {
-          var paddingY = self.opts.zoomedPaddingY(imgHeight, height)
-          mvtY = coord[1] / (height / 2)
-          mvtY = ((imgHeight - height) / 2 + paddingY) * mvtY
-        }
+      var mvtY = 0
+      if (imgHeight > height) {
+        var paddingY = this.opts.zoomedPaddingY(imgHeight, height)
+        mvtY = coord[1] / (height / 2)
+        mvtY = ((imgHeight - height) / 2 + paddingY) * mvtY
+      }
 
-        var animation = {
-          'margin-left': -mvtX + 'px',
-          'margin-top': -mvtY + 'px',
-        }
-        if (typeof e.duration !== 'undefined') {
-          $(self.$img)
-            .stop(false, true)
-            .animate(animation, e.duration)
-        } else {
-          $(self.$img)
-            .stop(false, true)
-            .css(animation)
-        }
-      })
-      $(window).on('resize', function() {
-        if (!self.initialized || self.currentImage == null) {
-          return
-        }
-        self.debounce(50, function() {
-          var fitting = self.fit(self.currentImage, self.$wrapper)
-          self.center(
-            fitting.width,
-            fitting.height,
-            fitting.left,
-            fitting.top,
-            0
-          )
-          self.zoomable()
-        })
-      })
+      var animation = {
+        'margin-left': -mvtX + 'px',
+        'margin-top': -mvtY + 'px',
+      }
+      if (typeof e.duration !== 'undefined') {
+        this.$img.stop(false, true).animate(animation, e.duration)
+      } else {
+        this.$img.stop(false, true).css(animation)
+      }
     },
 
     zoomable: function() {
@@ -603,7 +572,7 @@
     },
 
     zoomIn: function(e) {
-      this.opts.initialZoomState = this.opts.imageSize
+      this.initialZoomState = this.opts.imageSize
       this.opts.imageSize = 'native'
 
       var event = $.Event('mousemove')
@@ -624,13 +593,12 @@
     },
 
     zoomOut: function(e, duration) {
-      if (this.opts.initialZoomState === null || this.currentImage == null) {
-        return
-      }
+      if (this.initialZoomState === null) return
+      if (this.currentImage == null) return
       duration = duration || this.opts.duration
 
-      this.opts.imageSize = this.opts.initialZoomState
-      this.opts.initialZoomState = null
+      this.opts.imageSize = this.initialZoomState
+      this.initialZoomState = null
       this.$img.animate({ margin: 0 }, duration)
 
       this.$container.removeClass('chocolat-zoomed')
@@ -667,7 +635,6 @@
     imageSelector: '.chocolat-image',
     className: '',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'
-    initialZoomState: null,
     fullScreen: null,
     loop: false,
     linkImages: true,
