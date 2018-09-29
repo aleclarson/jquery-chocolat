@@ -115,12 +115,11 @@
 
     appear: function(i) {
       var self = this
-      clearTimeout(this.loaderDelay)
       function showImage() {
         self.$img.attr('src', self.images[i].src)
       }
-
       if (this.$loader) {
+        clearTimeout(this.loaderDelay)
         this.$loader.stop().fadeOut(300, showImage)
       } else {
         showImage()
@@ -362,9 +361,11 @@
 
       var self = this
       if (this.$loader) {
+        // Fade in loader after short delay
+        var delay = 100 + (isReveal ? this.opts.duration : 0)
         this.loaderDelay = setTimeout(function() {
           self.$loader.fadeIn()
-        }, this.opts.duration + 50)
+        }, delay)
       }
 
       var deferred = this.preload(i)
