@@ -80,161 +80,6 @@
         })
     },
 
-    preload: function(i) {
-      var def = $.Deferred()
-
-      if (typeof this.opts.images[i] === 'undefined') {
-        return
-      }
-      var imgLoader = new Image()
-      imgLoader.onload = function() {
-        def.resolve(imgLoader)
-      }
-      imgLoader.src = this.opts.images[i].src
-
-      return def
-    },
-
-    load: function(i) {
-      var self = this
-      if (this.opts.fullScreen == true) {
-        this.openFullScreen()
-      }
-
-      if (this.currentImage === i) {
-        return
-      }
-
-      this.$overlay.fadeIn(this.opts.duration)
-      this.$wrapper.fadeIn(this.opts.duration)
-      this.$container.addClass(cssPre + 'open')
-
-      if (this.$loader) {
-        this.opts.timer = setTimeout(function() {
-          self.$loader.fadeIn()
-        }, this.opts.duration)
-      }
-
-      var deferred = this.preload(i)
-        .then(function(imgLoader) {
-          return self.place(i, imgLoader)
-        })
-        .then(function(imgLoader) {
-          return self.appear(i)
-        })
-        .then(function(imgLoader) {
-          self.zoomable()
-          if (self.opts.onImageLoad) {
-            self.opts.onImageLoad(self)
-          }
-        })
-
-      var nextIndex = i + 1
-      if (typeof this.opts.images[nextIndex] != 'undefined') {
-        this.preload(nextIndex)
-      }
-
-      return deferred
-    },
-
-    place: function(i, imgLoader) {
-      var self = this
-
-      this.currentImage = i
-      this.description()
-      this.arrows()
-      if (this.$pagination) {
-        this.pagination()
-      }
-
-      this.storeImgSize(imgLoader, i)
-
-      var dims = this.fit(i, self.$wrapper)
-      return this.center(dims.width, dims.height, dims.left, dims.top, 0)
-    },
-
-    center: function(width, height, left, top, duration) {
-      return this.$content
-        .css('overflow', 'visible')
-        .animate(
-          {
-            width: width,
-            height: height,
-            left: left,
-            top: top,
-          },
-          duration
-        )
-        .promise()
-    },
-
-    appear: function(i) {
-      var self = this
-      clearTimeout(this.opts.timer)
-      function showImage() {
-        self.$img.attr('src', self.opts.images[i].src)
-      }
-
-      if (this.$loader) {
-        this.$loader.stop().fadeOut(300, showImage)
-      } else {
-        showImage()
-      }
-    },
-
-    fit: function(i, container) {
-      var height
-      var width
-
-      var imgHeight = this.opts.images[i].height
-      var imgWidth = this.opts.images[i].width
-      var holderHeight = $(container).height()
-      var holderWidth = $(container).width()
-      var holderOutMarginH = this.getOutMarginH()
-      var holderOutMarginW = this.getOutMarginW()
-
-      var holderGlobalWidth = holderWidth - holderOutMarginW
-      var holderGlobalHeight = holderHeight - holderOutMarginH
-      var holderGlobalRatio = holderGlobalHeight / holderGlobalWidth
-      var holderRatio = holderHeight / holderWidth
-      var imgRatio = imgHeight / imgWidth
-
-      if (this.opts.imageSize == 'cover') {
-        if (imgRatio < holderRatio) {
-          height = holderHeight
-          width = height / imgRatio
-        } else {
-          width = holderWidth
-          height = width * imgRatio
-        }
-      } else if (this.opts.imageSize == 'native') {
-        height = imgHeight
-        width = imgWidth
-      } else {
-        if (imgRatio > holderGlobalRatio) {
-          height = holderGlobalHeight
-          width = height / imgRatio
-        } else {
-          width = holderGlobalWidth
-          height = width * imgRatio
-        }
-        if (
-          this.opts.imageSize === 'default' &&
-          (width >= imgWidth || height >= imgHeight)
-        ) {
-          width = imgWidth
-          height = imgHeight
-        }
-      }
-
-      return {
-        height: height,
-        width: width,
-        top: (holderHeight - height) / 2,
-        left: (holderWidth - width) / 2,
-      }
-    },
-
     change: function(delta) {
       this.zoomOut(null, 0)
       this.zoomable()
@@ -254,44 +99,33 @@
       }
     },
 
-    arrows: function() {
-      if (this.opts.loop) {
-        this.$prev.add(this.$next).addClass('active')
-      } else if (this.opts.linkImages) {
-        // right
-        if (this.currentImage == this.opts.images.length - 1) {
-          this.$next.removeClass('active')
-        } else {
-          this.$next.addClass('active')
-        }
-        // left
-        if (this.currentImage === 0) {
-          this.$prev.removeClass('active')
-        } else {
-          this.$prev.addClass('active')
-        }
+    place: function(i, imgLoader) {
+      var self = this
+
+      this.currentImage = i
+      this.description()
+      this.arrows()
+      if (this.$pagination) {
+        this.pagination()
+      }
+
+      this.storeImgSize(imgLoader, i)
+
+      var dims = this.fit(i, self.$wrapper)
+      return this.center(dims.width, dims.height, dims.left, dims.top, 0)
+    },
+
+    appear: function(i) {
+      var self = this
+      clearTimeout(this.opts.timer)
+      function showImage() {
+        self.$img.attr('src', self.opts.images[i].src)
+      }
+
+      if (this.$loader) {
+        this.$loader.stop().fadeOut(300, showImage)
       } else {
-        this.$prev.add(this.$next).removeClass('active')
-      }
-    },
-
-    description: function() {
-      this.$description.html(this.opts.images[this.currentImage].title)
-    },
-
-    pagination: function() {
-      var index = this.currentImage + 1
-      var imageCount = this.opts.images.length
-      this.$pagination.html(index + ' / ' + imageCount)
-    },
-
-    storeImgSize: function(img, i) {
-      if (typeof img === 'undefined') {
-        return
-      }
-      if (!this.opts.images[i].height || !this.opts.images[i].width) {
-        this.opts.images[i].height = img.height
-        this.opts.images[i].width = img.width
+        showImage()
       }
     },
 
@@ -314,15 +148,9 @@
       }
     },
 
-    getOutMarginW: function() {
-      var left = this.$prev.outerWidth(true)
-      var right = this.$next.outerWidth(true)
-      return left + right
-    },
-
-    getOutMarginH: function() {
-      return this.$top.outerHeight(true) + this.$bottom.outerHeight(true)
-    },
+    /**
+     * Initialization
+     */
 
     markup: function() {
       this.$container = $(this.opts.container)
@@ -405,39 +233,6 @@
       }
     },
 
-    openFullScreen: function() {
-      if (this.isFullScreen) return
-      this.isFullScreen = true
-
-      var wrapper = this.$wrapper[0]
-      if (wrapper.requestFullscreen) {
-        wrapper.requestFullscreen()
-      } else if (wrapper.mozRequestFullScreen) {
-        wrapper.mozRequestFullScreen()
-      } else if (wrapper.webkitRequestFullscreen) {
-        wrapper.webkitRequestFullscreen()
-      } else if (wrapper.msRequestFullscreen) {
-        wrapper.msRequestFullscreen()
-      } else {
-        this.isFullScreen = false
-      }
-    },
-
-    exitFullScreen: function() {
-      if (!this.isFullScreen) return
-      this.isFullScreen = false
-
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen()
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen()
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen()
-      }
-    },
-
     events: function() {
       var self = this
       self._events = []
@@ -503,47 +298,234 @@
       }
     },
 
-    onZoomPan: function(e) {
-      if (this.initialZoomState === null) return
-      if (this.$img.is(':animated')) return
+    /**
+     * Components
+     */
 
-      var pos = this.$wrapper.offset()
-      var height = this.$wrapper.height()
-      var width = this.$wrapper.width()
-
-      var currentImage = this.opts.images[this.currentImage]
-      var imgWidth = currentImage.width
-      var imgHeight = currentImage.height
-
-      var coord = [
-        e.pageX - width / 2 - pos.left,
-        e.pageY - height / 2 - pos.top,
-      ]
-
-      var mvtX = 0
-      if (imgWidth > width) {
-        var paddingX = this.opts.zoomedPaddingX(imgWidth, width)
-        mvtX = coord[0] / (width / 2)
-        mvtX = ((imgWidth - width) / 2 + paddingX) * mvtX
-      }
-
-      var mvtY = 0
-      if (imgHeight > height) {
-        var paddingY = this.opts.zoomedPaddingY(imgHeight, height)
-        mvtY = coord[1] / (height / 2)
-        mvtY = ((imgHeight - height) / 2 + paddingY) * mvtY
-      }
-
-      var animation = {
-        'margin-left': -mvtX + 'px',
-        'margin-top': -mvtY + 'px',
-      }
-      if (typeof e.duration !== 'undefined') {
-        this.$img.stop(false, true).animate(animation, e.duration)
+    arrows: function() {
+      if (this.opts.loop) {
+        this.$prev.add(this.$next).addClass('active')
+      } else if (this.opts.linkImages) {
+        // right
+        if (this.currentImage == this.opts.images.length - 1) {
+          this.$next.removeClass('active')
+        } else {
+          this.$next.addClass('active')
+        }
+        // left
+        if (this.currentImage === 0) {
+          this.$prev.removeClass('active')
+        } else {
+          this.$prev.addClass('active')
+        }
       } else {
-        this.$img.stop(false, true).css(animation)
+        this.$prev.add(this.$next).removeClass('active')
       }
     },
+
+    description: function() {
+      this.$description.html(this.opts.images[this.currentImage].title)
+    },
+
+    pagination: function() {
+      var index = this.currentImage + 1
+      var imageCount = this.opts.images.length
+      this.$pagination.html(index + ' / ' + imageCount)
+    },
+
+    /**
+     * Image loading
+     */
+
+    load: function(i) {
+      var self = this
+      if (this.opts.fullScreen == true) {
+        this.openFullScreen()
+      }
+
+      if (this.currentImage === i) {
+        return
+      }
+
+      this.$overlay.fadeIn(this.opts.duration)
+      this.$wrapper.fadeIn(this.opts.duration)
+      this.$container.addClass(cssPre + 'open')
+
+      if (this.$loader) {
+        this.opts.timer = setTimeout(function() {
+          self.$loader.fadeIn()
+        }, this.opts.duration)
+      }
+
+      var deferred = this.preload(i)
+        .then(function(imgLoader) {
+          return self.place(i, imgLoader)
+        })
+        .then(function(imgLoader) {
+          return self.appear(i)
+        })
+        .then(function(imgLoader) {
+          self.zoomable()
+          if (self.opts.onImageLoad) {
+            self.opts.onImageLoad(self)
+          }
+        })
+
+      var nextIndex = i + 1
+      if (typeof this.opts.images[nextIndex] != 'undefined') {
+        this.preload(nextIndex)
+      }
+
+      return deferred
+    },
+
+    preload: function(i) {
+      var def = $.Deferred()
+
+      if (typeof this.opts.images[i] === 'undefined') {
+        return
+      }
+      var imgLoader = new Image()
+      imgLoader.onload = function() {
+        def.resolve(imgLoader)
+      }
+      imgLoader.src = this.opts.images[i].src
+
+      return def
+    },
+
+    /**
+     * Image sizing
+     */
+
+    center: function(width, height, left, top, duration) {
+      return this.$content
+        .css('overflow', 'visible')
+        .animate(
+          {
+            width: width,
+            height: height,
+            left: left,
+            top: top,
+          },
+          duration
+        )
+        .promise()
+    },
+
+    fit: function(i, container) {
+      var height
+      var width
+
+      var imgHeight = this.opts.images[i].height
+      var imgWidth = this.opts.images[i].width
+      var holderHeight = $(container).height()
+      var holderWidth = $(container).width()
+      var holderOutMarginH = this.getOutMarginH()
+      var holderOutMarginW = this.getOutMarginW()
+
+      var holderGlobalWidth = holderWidth - holderOutMarginW
+      var holderGlobalHeight = holderHeight - holderOutMarginH
+      var holderGlobalRatio = holderGlobalHeight / holderGlobalWidth
+      var holderRatio = holderHeight / holderWidth
+      var imgRatio = imgHeight / imgWidth
+
+      if (this.opts.imageSize == 'cover') {
+        if (imgRatio < holderRatio) {
+          height = holderHeight
+          width = height / imgRatio
+        } else {
+          width = holderWidth
+          height = width * imgRatio
+        }
+      } else if (this.opts.imageSize == 'native') {
+        height = imgHeight
+        width = imgWidth
+      } else {
+        if (imgRatio > holderGlobalRatio) {
+          height = holderGlobalHeight
+          width = height / imgRatio
+        } else {
+          width = holderGlobalWidth
+          height = width * imgRatio
+        }
+        if (
+          this.opts.imageSize === 'default' &&
+          (width >= imgWidth || height >= imgHeight)
+        ) {
+          width = imgWidth
+          height = imgHeight
+        }
+      }
+
+      return {
+        height: height,
+        width: width,
+        top: (holderHeight - height) / 2,
+        left: (holderWidth - width) / 2,
+      }
+    },
+
+    storeImgSize: function(img, i) {
+      if (typeof img === 'undefined') {
+        return
+      }
+      if (!this.opts.images[i].height || !this.opts.images[i].width) {
+        this.opts.images[i].height = img.height
+        this.opts.images[i].width = img.width
+      }
+    },
+
+    getOutMarginW: function() {
+      var left = this.$prev.outerWidth(true)
+      var right = this.$next.outerWidth(true)
+      return left + right
+    },
+
+    getOutMarginH: function() {
+      return this.$top.outerHeight(true) + this.$bottom.outerHeight(true)
+    },
+
+    /**
+     * Fullscreen mode
+     */
+
+    openFullScreen: function() {
+      if (this.isFullScreen) return
+      this.isFullScreen = true
+
+      var wrapper = this.$wrapper[0]
+      if (wrapper.requestFullscreen) {
+        wrapper.requestFullscreen()
+      } else if (wrapper.mozRequestFullScreen) {
+        wrapper.mozRequestFullScreen()
+      } else if (wrapper.webkitRequestFullscreen) {
+        wrapper.webkitRequestFullscreen()
+      } else if (wrapper.msRequestFullscreen) {
+        wrapper.msRequestFullscreen()
+      } else {
+        this.isFullScreen = false
+      }
+    },
+
+    exitFullScreen: function() {
+      if (!this.isFullScreen) return
+      this.isFullScreen = false
+
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen()
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen()
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen()
+      }
+    },
+
+    /**
+     * Zoom mode
+     */
 
     zoomable: function() {
       var currentImage = this.opts.images[this.currentImage]
@@ -598,6 +580,48 @@
 
       var dims = this.fit(this.currentImage, this.$wrapper)
       return this.center(dims.width, dims.height, dims.left, dims.top, duration)
+    },
+
+    onZoomPan: function(e) {
+      if (this.initialZoomState === null) return
+      if (this.$img.is(':animated')) return
+
+      var pos = this.$wrapper.offset()
+      var height = this.$wrapper.height()
+      var width = this.$wrapper.width()
+
+      var currentImage = this.opts.images[this.currentImage]
+      var imgWidth = currentImage.width
+      var imgHeight = currentImage.height
+
+      var coord = [
+        e.pageX - width / 2 - pos.left,
+        e.pageY - height / 2 - pos.top,
+      ]
+
+      var mvtX = 0
+      if (imgWidth > width) {
+        var paddingX = this.opts.zoomedPaddingX(imgWidth, width)
+        mvtX = coord[0] / (width / 2)
+        mvtX = ((imgWidth - width) / 2 + paddingX) * mvtX
+      }
+
+      var mvtY = 0
+      if (imgHeight > height) {
+        var paddingY = this.opts.zoomedPaddingY(imgHeight, height)
+        mvtY = coord[1] / (height / 2)
+        mvtY = ((imgHeight - height) / 2 + paddingY) * mvtY
+      }
+
+      var animation = {
+        'margin-left': -mvtX + 'px',
+        'margin-top': -mvtY + 'px',
+      }
+      if (typeof e.duration !== 'undefined') {
+        this.$img.stop(false, true).animate(animation, e.duration)
+      } else {
+        this.$img.stop(false, true).css(animation)
+      }
     },
   })
 
