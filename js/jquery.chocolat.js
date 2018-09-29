@@ -122,7 +122,7 @@
       return this.center(dims.width, dims.height, dims.left, dims.top, 0)
     },
 
-    appear: function(i) {
+    reveal: function(i) {
       var self = this
       function showImage() {
         self.$img.attr('src', self.images[i].src)
@@ -390,7 +390,7 @@
         })
         .then(function(imgLoader) {
           clearTimeout(changeDelay)
-          return self.appear(i)
+          return self.reveal(i)
         })
         .then(function(imgLoader) {
           self.zoomable()
