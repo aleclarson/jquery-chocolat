@@ -66,8 +66,8 @@
         this.mounted = true
         this.markup()
         this.events()
-        if (this.opts.onReady) {
-          this.opts.onReady(this)
+        if (this.opts.onMount) {
+          this.opts.onMount(this)
         }
       }
       return this.load(i)
