@@ -91,7 +91,9 @@
         .add(this.$wrapper)
         .fadeOut(200, function() {
           self.$container.removeClass(cssPre + 'open')
-          callback && callback()
+          if (typeof callback == 'function') {
+            callback()
+          }
         })
     },
 
