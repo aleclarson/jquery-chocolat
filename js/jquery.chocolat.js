@@ -129,7 +129,7 @@
     },
 
     destroy: function() {
-      $el.removeData('chocolat')
+      this.$el.removeData('chocolat')
       if (this.ready) {
         this.ready = false
         this.currentImage = null
