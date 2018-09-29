@@ -136,7 +136,7 @@
     },
 
     destroy: function() {
-      this.$el.removeData('chocolat')
+      this.$el.removeData('chocolat').off('click' + this.eventNS)
       if (this.mounted) {
         this.mounted = false
         this.currentImage = null
@@ -147,11 +147,12 @@
         this.$wrapper.remove()
 
         // Remove event listeners
-        this.$sources.off('click' + this.eventNS)
-        this._events.forEach(function(event) {
-          event.$target.off(event.type + this.eventNS)
-        }, this)
-        this._events = null
+        if (this._events) {
+          this._events.forEach(function(event) {
+            event.$target.off(event.type + this.eventNS)
+          }, this)
+          this._events = null
+        }
       }
     },
 
