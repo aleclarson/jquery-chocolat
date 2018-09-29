@@ -139,7 +139,6 @@
 
     place: function(i, imgLoader) {
       var self = this
-      var fitting
 
       this.currentImage = i
       this.description()
@@ -149,15 +148,9 @@
       }
 
       this.storeImgSize(imgLoader, i)
-      fitting = this.fit(i, self.$wrapper)
 
-      return this.center(
-        fitting.width,
-        fitting.height,
-        fitting.left,
-        fitting.top,
-        0
-      )
+      var dims = this.fit(i, self.$wrapper)
+      return this.center(dims.width, dims.height, dims.left, dims.top, 0)
     },
 
     center: function(width, height, left, top, duration) {
@@ -573,25 +566,22 @@
       }
     },
 
-    zoomIn: function(e) {
+    zoomIn: function(e, duration) {
+      if (this.initialZoomState !== null) return
+      if (this.currentImage == null) return
+      duration = duration || this.opts.duration
+
       this.initialZoomState = this.opts.imageSize
       this.opts.imageSize = 'native'
-
-      var event = $.Event('mousemove')
-      event.pageX = e.pageX
-      event.pageY = e.pageY
-      event.duration = this.opts.duration
-      this.$wrapper.trigger(event)
+      this.onZoomPan({
+        pageX: e.pageX,
+        pageY: e.pageY,
+        duration: duration,
+      })
 
       this.$container.addClass(cssPre + 'zoomed')
-      var fitting = this.fit(this.currentImage, this.$wrapper)
-      return this.center(
-        fitting.width,
-        fitting.height,
-        fitting.left,
-        fitting.top,
-        this.opts.duration
-      )
+      var dims = this.fit(this.currentImage, this.$wrapper)
+      return this.center(dims.width, dims.height, dims.left, dims.top, duration)
     },
 
     zoomOut: function(e, duration) {
@@ -601,17 +591,12 @@
 
       this.opts.imageSize = this.initialZoomState
       this.initialZoomState = null
-      this.$img.animate({ margin: 0 }, duration)
 
+      this.$img.animate({ margin: 0 }, duration)
       this.$container.removeClass(cssPre + 'zoomed')
-      var fitting = this.fit(this.currentImage, this.$wrapper)
-      return this.center(
-        fitting.width,
-        fitting.height,
-        fitting.left,
-        fitting.top,
-        duration
-      )
+
+      var dims = this.fit(this.currentImage, this.$wrapper)
+      return this.center(dims.width, dims.height, dims.left, dims.top, duration)
     },
 
     debounce: function(duration, callback) {
