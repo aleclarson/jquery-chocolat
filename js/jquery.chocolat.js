@@ -123,9 +123,14 @@
     },
 
     reveal: function(i) {
+      var def = $.Deferred()
       var self = this
       function showImage() {
         self.$img.attr('src', self.images[i].src)
+        self.zoomable()
+        if (self.opts.onReveal) {
+          self.opts.onReveal(self)
+        }
       }
       if (this.$loader) {
         clearTimeout(this.loaderDelay)
@@ -133,6 +138,7 @@
       } else {
         showImage()
       }
+      return def
     },
 
     destroy: function() {
@@ -373,9 +379,10 @@
 
       // Hide previous image after short delay
       var self = this
-      var changeDelay = setTimeout(function() {
+      var removeDelay = setTimeout(removePrevImage, 200)
+      function removePrevImage() {
         self.$img[0].src = ''
-      }, 200)
+      }
 
       if (this.$loader) {
         // Fade in loader after short delay
@@ -384,27 +391,22 @@
         }, 200)
       }
 
-      var deferred = this.preload(i)
+      var def = this.preload(i)
         .then(function(imgLoader) {
+          removePrevImage()
+          clearTimeout(removeDelay)
           return self.place(i, imgLoader)
         })
-        .then(function(imgLoader) {
-          clearTimeout(changeDelay)
+        .then(function() {
           return self.reveal(i)
         })
-        .then(function(imgLoader) {
-          self.zoomable()
-          if (self.opts.onChange) {
-            self.opts.onChange(self)
-          }
-        })
 
-      var nextIndex = i + 1
-      if (typeof this.images[nextIndex] != 'undefined') {
-        this.preload(nextIndex)
+      var next = i + 1
+      if (next in this.images) {
+        this.preload(next)
       }
 
-      return deferred
+      return def
     },
 
     /**
