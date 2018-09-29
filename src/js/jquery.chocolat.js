@@ -7,10 +7,10 @@
 })(function($, window, document, undefined) {
   var calls = 0
 
-  function Chocolat(element, settings) {
+  function Chocolat(element, opts) {
     var self = this
 
-    this.settings = settings
+    this.opts = opts
     this.elems = {}
     this.element = element
     this.isFullScreen = false
@@ -23,15 +23,15 @@
       'chocolat-zoomed',
     ]
 
-    if (!this.settings.setTitle && element.data('chocolat-title')) {
-      this.settings.setTitle = element.data('chocolat-title')
+    if (!this.opts.setTitle && element.data('chocolat-title')) {
+      this.opts.setTitle = element.data('chocolat-title')
     }
 
-    this.element.find(this.settings.imageSelector).each(function() {
+    this.element.find(this.opts.imageSelector).each(function() {
       var $this = $(this)
-      self.settings.images.push({
+      self.opts.images.push({
         title: $this.attr('title'),
-        src: $this.attr(self.settings.imageSource),
+        src: $this.attr(self.opts.imageSource),
         height: false,
         width: false,
       })
@@ -46,15 +46,15 @@
 
   $.extend(Chocolat.prototype, {
     init: function(i) {
-      if (!this.settings.initialized) {
+      if (!this.opts.initialized) {
         this.setDomContainer()
         this.markup()
         this.events()
-        this.settings.lastImage = this.settings.images.length - 1
-        this.settings.initialized = true
+        this.opts.lastImage = this.opts.images.length - 1
+        this.opts.initialized = true
       }
 
-      this.settings.afterInitialize.call(this)
+      this.opts.afterInitialize.call(this)
 
       return this.load(i)
     },
@@ -62,37 +62,37 @@
     preload: function(i) {
       var def = $.Deferred()
 
-      if (typeof this.settings.images[i] === 'undefined') {
+      if (typeof this.opts.images[i] === 'undefined') {
         return
       }
       var imgLoader = new Image()
       imgLoader.onload = function() {
         def.resolve(imgLoader)
       }
-      imgLoader.src = this.settings.images[i].src
+      imgLoader.src = this.opts.images[i].src
 
       return def
     },
 
     load: function(i) {
       var self = this
-      if (this.settings.fullScreen == true) {
+      if (this.opts.fullScreen == true) {
         this.openFullScreen()
       }
 
-      if (this.settings.currentImage === i) {
+      if (this.opts.currentImage === i) {
         return
       }
 
-      this.elems.overlay.fadeIn(this.settings.duration)
-      this.elems.wrapper.fadeIn(this.settings.duration)
+      this.elems.overlay.fadeIn(this.opts.duration)
+      this.elems.wrapper.fadeIn(this.opts.duration)
       this.elems.domContainer.addClass('chocolat-open')
 
-      this.settings.timer = setTimeout(function() {
+      this.opts.timer = setTimeout(function() {
         if (typeof self.elems != 'undefined') {
           $.proxy(self.elems.loader.fadeIn(), self)
         }
-      }, this.settings.duration)
+      }, this.opts.duration)
 
       var deferred = this.preload(i)
         .then(function(imgLoader) {
@@ -103,11 +103,11 @@
         })
         .then(function(imgLoader) {
           self.zoomable()
-          self.settings.afterImageLoad.call(self)
+          self.opts.afterImageLoad.call(self)
         })
 
       var nextIndex = i + 1
-      if (typeof this.settings.images[nextIndex] != 'undefined') {
+      if (typeof this.opts.images[nextIndex] != 'undefined') {
         this.preload(nextIndex)
       }
 
@@ -118,7 +118,7 @@
       var self = this
       var fitting
 
-      this.settings.currentImage = i
+      this.opts.currentImage = i
       this.description()
       this.pagination()
       this.arrows()
@@ -152,10 +152,10 @@
 
     appear: function(i) {
       var self = this
-      clearTimeout(this.settings.timer)
+      clearTimeout(this.opts.timer)
 
       this.elems.loader.stop().fadeOut(300, function() {
-        self.elems.img.attr('src', self.settings.images[i].src)
+        self.elems.img.attr('src', self.opts.images[i].src)
       })
     },
 
@@ -163,8 +163,8 @@
       var height
       var width
 
-      var imgHeight = this.settings.images[i].height
-      var imgWidth = this.settings.images[i].width
+      var imgHeight = this.opts.images[i].height
+      var imgWidth = this.opts.images[i].width
       var holderHeight = $(container).height()
       var holderWidth = $(container).width()
       var holderOutMarginH = this.getOutMarginH()
@@ -176,7 +176,7 @@
       var holderRatio = holderHeight / holderWidth
       var imgRatio = imgHeight / imgWidth
 
-      if (this.settings.imageSize == 'cover') {
+      if (this.opts.imageSize == 'cover') {
         if (imgRatio < holderRatio) {
           height = holderHeight
           width = height / imgRatio
@@ -184,7 +184,7 @@
           width = holderWidth
           height = width * imgRatio
         }
-      } else if (this.settings.imageSize == 'native') {
+      } else if (this.opts.imageSize == 'native') {
         height = imgHeight
         width = imgWidth
       } else {
@@ -196,7 +196,7 @@
           height = width * imgRatio
         }
         if (
-          this.settings.imageSize === 'default' &&
+          this.opts.imageSize === 'default' &&
           (width >= imgWidth || height >= imgHeight)
         ) {
           width = imgWidth
@@ -216,14 +216,14 @@
       this.zoomOut(0)
       this.zoomable()
 
-      var requestedImage = this.settings.currentImage + parseInt(signe)
-      if (requestedImage > this.settings.lastImage) {
-        if (this.settings.loop) {
+      var requestedImage = this.opts.currentImage + parseInt(signe)
+      if (requestedImage > this.opts.lastImage) {
+        if (this.opts.loop) {
           return this.load(0)
         }
       } else if (requestedImage < 0) {
-        if (this.settings.loop) {
-          return this.load(this.settings.lastImage)
+        if (this.opts.loop) {
+          return this.load(this.opts.lastImage)
         }
       } else {
         return this.load(requestedImage)
@@ -231,17 +231,17 @@
     },
 
     arrows: function() {
-      if (this.settings.loop) {
+      if (this.opts.loop) {
         $([this.elems.left[0], this.elems.right[0]]).addClass('active')
-      } else if (this.settings.linkImages) {
+      } else if (this.opts.linkImages) {
         // right
-        if (this.settings.currentImage == this.settings.lastImage) {
+        if (this.opts.currentImage == this.opts.lastImage) {
           this.elems.right.removeClass('active')
         } else {
           this.elems.right.addClass('active')
         }
         // left
-        if (this.settings.currentImage === 0) {
+        if (this.opts.currentImage === 0) {
           this.elems.left.removeClass('active')
         } else {
           this.elems.left.addClass('active')
@@ -254,27 +254,25 @@
     description: function() {
       var self = this
       this.elems.description.html(
-        self.settings.images[self.settings.currentImage].title
+        self.opts.images[self.opts.currentImage].title
       )
     },
 
     pagination: function() {
       var self = this
-      var last = this.settings.lastImage + 1
-      var position = this.settings.currentImage + 1
+      var last = this.opts.lastImage + 1
+      var position = this.opts.currentImage + 1
 
-      this.elems.pagination.html(
-        position + ' ' + self.settings.separator2 + last
-      )
+      this.elems.pagination.html(position + ' ' + self.opts.separator2 + last)
     },
 
     storeImgSize: function(img, i) {
       if (typeof img === 'undefined') {
         return
       }
-      if (!this.settings.images[i].height || !this.settings.images[i].width) {
-        this.settings.images[i].height = img.height
-        this.settings.images[i].width = img.width
+      if (!this.opts.images[i].height || !this.opts.images[i].width) {
+        this.opts.images[i].height = img.height
+        this.opts.images[i].width = img.width
       }
     },
 
@@ -293,23 +291,23 @@
       var def = $.when($(els).fadeOut(200)).done(function() {
         self.elems.domContainer.removeClass('chocolat-open')
       })
-      this.settings.currentImage = false
+      this.opts.currentImage = false
 
       return def
     },
 
     destroy: function() {
       this.element.removeData()
-      this.element.find(this.settings.imageSelector).off('click.chocolat')
+      this.element.find(this.opts.imageSelector).off('click.chocolat')
 
-      if (!this.settings.initialized) {
+      if (!this.opts.initialized) {
         return
       }
       if (this.isFullScreen) {
         this.exitFullScreen()
       }
-      this.settings.currentImage = false
-      this.settings.initialized = false
+      this.opts.currentImage = false
+      this.opts.initialized = false
       this.elems.domContainer.removeClass(this._cssClasses.join(' '))
       this.elems.wrapper.remove()
     },
@@ -327,19 +325,17 @@
     },
 
     markup: function() {
-      this.elems.domContainer.addClass(
-        'chocolat-open ' + this.settings.className
-      )
-      if (this.settings.imageSize == 'cover') {
+      this.elems.domContainer.addClass('chocolat-open ' + this.opts.className)
+      if (this.opts.imageSize == 'cover') {
         this.elems.domContainer.addClass('chocolat-cover')
       }
-      if (this.settings.container !== window) {
+      if (this.opts.container !== window) {
         this.elems.domContainer.addClass('chocolat-in-container')
       }
 
       this.elems.wrapper = $('<div/>', {
         class: 'chocolat-wrapper',
-        id: 'chocolat-content-' + this.settings.setIndex,
+        id: 'chocolat-content-' + this.opts.setIndex,
       }).appendTo(this.elems.domContainer)
 
       this.elems.overlay = $('<div/>', {
@@ -379,7 +375,7 @@
         class: 'chocolat-close',
       }).appendTo(this.elems.top)
 
-      if (this.settings.fullScreen !== false) {
+      if (this.opts.fullScreen !== false) {
         this.elems.fullscreen = $('<span/>', {
           class: 'chocolat-fullscreen',
         }).appendTo(this.elems.bottom)
@@ -395,10 +391,10 @@
 
       this.elems.setTitle = $('<span/>', {
         class: 'chocolat-set-title',
-        html: this.settings.setTitle,
+        html: this.opts.setTitle,
       }).appendTo(this.elems.bottom)
 
-      this.settings.afterMarkup.call(this)
+      this.opts.afterMarkup.call(this)
     },
 
     openFullScreen: function() {
@@ -440,7 +436,7 @@
       $(document)
         .off('keydown.chocolat')
         .on('keydown.chocolat', function(e) {
-          if (self.settings.initialized) {
+          if (self.opts.initialized) {
             if (e.keyCode == 37) {
               self.change(-1)
             } else if (e.keyCode == 39) {
@@ -453,7 +449,7 @@
       // this.elems.wrapper.find('.chocolat-img')
       //     .off('click.chocolat')
       //     .on('click.chocolat', function(e) {
-      //         var currentImage = self.settings.images[self.settings.currentImage];
+      //         var currentImage = self.opts.images[self.opts.currentImage];
       //         if(currentImage.width > $(self.elems.wrapper).width() || currentImage.height > $(self.elems.wrapper).height() ){
       //             self.toggleZoom(e);
       //         }
@@ -479,11 +475,11 @@
           return self.close()
         })
 
-      if (this.settings.fullScreen !== false) {
+      if (this.opts.fullScreen !== false) {
         this.elems.fullscreen
           .off('click.chocolat')
           .on('click.chocolat', function() {
-            if (self.settings.fullscreenOpen) {
+            if (self.opts.fullscreenOpen) {
               self.exitFullScreen()
               return
             }
@@ -492,7 +488,7 @@
           })
       }
 
-      if (self.settings.backgroundClose) {
+      if (self.opts.backgroundClose) {
         this.elems.overlay
           .off('click.chocolat')
           .on('click.chocolat', function() {
@@ -510,7 +506,7 @@
         .off('click.chocolat')
         .on('click.chocolat', function(e) {
           if (
-            self.settings.initialZoomState === null &&
+            self.opts.initialZoomState === null &&
             self.elems.domContainer.hasClass('chocolat-zoomable')
           ) {
             e.stopPropagation()
@@ -519,7 +515,7 @@
         })
 
       this.elems.wrapper.mousemove(function(e) {
-        if (self.settings.initialZoomState === null) {
+        if (self.opts.initialZoomState === null) {
           return
         }
         if (self.elems.img.is(':animated')) {
@@ -530,7 +526,7 @@
         var height = $(this).height()
         var width = $(this).width()
 
-        var currentImage = self.settings.images[self.settings.currentImage]
+        var currentImage = self.opts.images[self.opts.currentImage]
         var imgWidth = currentImage.width
         var imgHeight = currentImage.height
 
@@ -541,14 +537,14 @@
 
         var mvtX = 0
         if (imgWidth > width) {
-          var paddingX = self.settings.zoomedPaddingX(imgWidth, width)
+          var paddingX = self.opts.zoomedPaddingX(imgWidth, width)
           mvtX = coord[0] / (width / 2)
           mvtX = ((imgWidth - width) / 2 + paddingX) * mvtX
         }
 
         var mvtY = 0
         if (imgHeight > height) {
-          var paddingY = self.settings.zoomedPaddingY(imgHeight, height)
+          var paddingY = self.opts.zoomedPaddingY(imgHeight, height)
           mvtY = coord[1] / (height / 2)
           mvtY = ((imgHeight - height) / 2 + paddingY) * mvtY
         }
@@ -568,14 +564,11 @@
         }
       })
       $(window).on('resize', function() {
-        if (
-          !self.settings.initialized ||
-          self.settings.currentImage === false
-        ) {
+        if (!self.opts.initialized || self.opts.currentImage === false) {
           return
         }
         self.debounce(50, function() {
-          var fitting = self.fit(self.settings.currentImage, self.elems.wrapper)
+          var fitting = self.fit(self.opts.currentImage, self.elems.wrapper)
           self.center(
             fitting.width,
             fitting.height,
@@ -589,12 +582,12 @@
     },
 
     zoomable: function() {
-      var currentImage = this.settings.images[this.settings.currentImage]
+      var currentImage = this.opts.images[this.opts.currentImage]
       var wrapperWidth = this.elems.wrapper.width()
       var wrapperHeight = this.elems.wrapper.height()
 
       var isImageZoomable =
-        this.settings.enableZoom &&
+        this.opts.enableZoom &&
         (currentImage.width > wrapperWidth ||
           currentImage.height > wrapperHeight)
           ? true
@@ -611,41 +604,41 @@
     },
 
     zoomIn: function(e) {
-      this.settings.initialZoomState = this.settings.imageSize
-      this.settings.imageSize = 'native'
+      this.opts.initialZoomState = this.opts.imageSize
+      this.opts.imageSize = 'native'
 
       var event = $.Event('mousemove')
       event.pageX = e.pageX
       event.pageY = e.pageY
-      event.duration = this.settings.duration
+      event.duration = this.opts.duration
       this.elems.wrapper.trigger(event)
 
       this.elems.domContainer.addClass('chocolat-zoomed')
-      var fitting = this.fit(this.settings.currentImage, this.elems.wrapper)
+      var fitting = this.fit(this.opts.currentImage, this.elems.wrapper)
       return this.center(
         fitting.width,
         fitting.height,
         fitting.left,
         fitting.top,
-        this.settings.duration
+        this.opts.duration
       )
     },
 
     zoomOut: function(e, duration) {
       if (
-        this.settings.initialZoomState === null ||
-        this.settings.currentImage === false
+        this.opts.initialZoomState === null ||
+        this.opts.currentImage === false
       ) {
         return
       }
-      duration = duration || this.settings.duration
+      duration = duration || this.opts.duration
 
-      this.settings.imageSize = this.settings.initialZoomState
-      this.settings.initialZoomState = null
+      this.opts.imageSize = this.opts.initialZoomState
+      this.opts.initialZoomState = null
       this.elems.img.animate({ margin: 0 }, duration)
 
       this.elems.domContainer.removeClass('chocolat-zoomed')
-      var fitting = this.fit(this.settings.currentImage, this.elems.wrapper)
+      var fitting = this.fit(this.opts.currentImage, this.elems.wrapper)
       return this.center(
         fitting.width,
         fitting.height,
@@ -658,16 +651,16 @@
     setDomContainer: function() {
       // if container == window
       // domContainer = body
-      if (this.settings.container === window) {
+      if (this.opts.container === window) {
         this.elems.domContainer = $('body')
       } else {
-        this.elems.domContainer = $(this.settings.container)
+        this.elems.domContainer = $(this.opts.container)
       }
     },
 
     debounce: function(duration, callback) {
-      clearTimeout(this.settings.timerDebounce)
-      this.settings.timerDebounce = setTimeout(function() {
+      clearTimeout(this.opts.timerDebounce)
+      this.opts.timerDebounce = setTimeout(function() {
         callback()
       }, duration)
     },
@@ -697,11 +690,11 @@
           return self.open(i)
         },
         current: function() {
-          return self.settings.currentImage
+          return self.opts.currentImage
         },
 
         place: function() {
-          return self.place(self.settings.currentImage, self.settings.duration)
+          return self.place(self.opts.currentImage, self.opts.duration)
         },
 
         destroy: function() {
@@ -709,12 +702,12 @@
         },
 
         set: function(property, value) {
-          self.settings[property] = value
+          self.opts[property] = value
           return value
         },
 
         get: function(property) {
-          return self.settings[property]
+          return self.opts[property]
         },
 
         getElem: function(name) {
@@ -757,13 +750,14 @@
     },
   }
 
-  $.fn.Chocolat = function(options) {
+  $.fn.Chocolat = function(opts) {
     return this.each(function() {
-      calls++
-      var settings = $.extend(true, {}, defaults, options, { setIndex: calls })
-
       if (!$.data(this, 'chocolat')) {
-        $.data(this, 'chocolat', new Chocolat($(this), settings))
+        var instance = new Chocolat(
+          $(this),
+          $.extend(true, {}, defaults, opts, { setIndex: ++calls })
+        )
+        $.data(this, 'chocolat', instance)
       }
     })
   }
