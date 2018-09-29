@@ -75,7 +75,7 @@
         this.$wrapper.fadeIn(this.opts.duration)
         this.$container.addClass(cssPre + 'open')
       }
-      return this._load(i)
+      return this._load(i || 0)
     },
 
     close: function(callback) {
