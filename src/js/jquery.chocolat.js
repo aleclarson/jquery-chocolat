@@ -7,6 +7,15 @@
 })(function($, window, document, undefined) {
   var calls = 0
 
+  // Classes which should be removed upon destroy.
+  var transientClasses = [
+    'chocolat-open',
+    'chocolat-in-container',
+    'chocolat-cover',
+    'chocolat-zoomable',
+    'chocolat-zoomed',
+  ]
+
   function Chocolat(element, opts) {
     var self = this
 
@@ -14,14 +23,6 @@
     this.elems = {}
     this.element = element
     this.isFullScreen = false
-
-    this._cssClasses = [
-      'chocolat-open',
-      'chocolat-in-container',
-      'chocolat-cover',
-      'chocolat-zoomable',
-      'chocolat-zoomed',
-    ]
 
     if (!this.opts.setTitle && element.data('chocolat-title')) {
       this.opts.setTitle = element.data('chocolat-title')
@@ -308,7 +309,7 @@
       }
       this.opts.currentImage = false
       this.opts.initialized = false
-      this.elems.domContainer.removeClass(this._cssClasses.join(' '))
+      this.elems.domContainer.removeClass(transientClasses.join(' '))
       this.elems.wrapper.remove()
     },
 
