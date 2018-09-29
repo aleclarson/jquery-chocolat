@@ -91,7 +91,7 @@
       this.zoomOut(null, 0)
       this.zoomable()
 
-      var imageCount = this.opts.images.length
+      var imageCount = this.images.length
       var requestedImage = this.currentImage + parseInt(delta)
       if (requestedImage >= imageCount) {
         if (this.opts.loop) {
@@ -126,7 +126,7 @@
       var self = this
       clearTimeout(this.loaderDelay)
       function showImage() {
-        self.$img.attr('src', self.opts.images[i].src)
+        self.$img.attr('src', self.images[i].src)
       }
 
       if (this.$loader) {
@@ -315,7 +315,7 @@
         this.$prev.add(this.$next).addClass('active')
       } else if (this.opts.linkImages) {
         // right
-        if (this.currentImage == this.opts.images.length - 1) {
+        if (this.currentImage == this.images.length - 1) {
           this.$next.removeClass('active')
         } else {
           this.$next.addClass('active')
@@ -332,12 +332,12 @@
     },
 
     description: function() {
-      this.$description.html(this.opts.images[this.currentImage].title)
+      this.$description.html(this.images[this.currentImage].title)
     },
 
     pagination: function() {
       var index = this.currentImage + 1
-      var imageCount = this.opts.images.length
+      var imageCount = this.images.length
       this.$pagination.html(index + ' / ' + imageCount)
     },
 
@@ -380,7 +380,7 @@
         })
 
       var nextIndex = i + 1
-      if (typeof this.opts.images[nextIndex] != 'undefined') {
+      if (typeof this.images[nextIndex] != 'undefined') {
         this.preload(nextIndex)
       }
 
@@ -390,14 +390,14 @@
     preload: function(i) {
       var def = $.Deferred()
 
-      if (typeof this.opts.images[i] === 'undefined') {
+      if (typeof this.images[i] === 'undefined') {
         return
       }
       var imgLoader = new Image()
       imgLoader.onload = function() {
         def.resolve(imgLoader)
       }
-      imgLoader.src = this.opts.images[i].src
+      imgLoader.src = this.images[i].src
 
       return def
     },
@@ -425,8 +425,8 @@
       var height
       var width
 
-      var imgHeight = this.opts.images[i].height
-      var imgWidth = this.opts.images[i].width
+      var imgHeight = this.images[i].height
+      var imgWidth = this.images[i].width
       var holderHeight = $(container).height()
       var holderWidth = $(container).width()
       var holderOutMarginH = this.getOutMarginH()
@@ -475,12 +475,11 @@
     },
 
     storeImgSize: function(img, i) {
-      if (typeof img === 'undefined') {
-        return
-      }
-      if (!this.opts.images[i].height || !this.opts.images[i].width) {
-        this.opts.images[i].height = img.height
-        this.opts.images[i].width = img.width
+      if (typeof img === 'undefined') return
+      var meta = this.images[i]
+      if (!meta.width || !meta.height) {
+        meta.width = img.width
+        meta.height = img.height
       }
     },
 
@@ -536,7 +535,7 @@
      */
 
     zoomable: function() {
-      var currentImage = this.opts.images[this.currentImage]
+      var currentImage = this.images[this.currentImage]
       var wrapperWidth = this.$wrapper.width()
       var wrapperHeight = this.$wrapper.height()
 
@@ -598,7 +597,7 @@
       var height = this.$wrapper.height()
       var width = this.$wrapper.width()
 
-      var currentImage = this.opts.images[this.currentImage]
+      var currentImage = this.images[this.currentImage]
       var imgWidth = currentImage.width
       var imgHeight = currentImage.height
 
