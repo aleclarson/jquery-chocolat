@@ -357,7 +357,13 @@
     },
 
     description: function() {
-      this.$description.html(this.images[this.currentImage].title)
+      var title = this.images[this.currentImage].title
+      if (title) {
+        this.$description.html(title)
+        this.$bottom.css('display', '')
+      } else if (this.opts.hidePagination) {
+        this.$bottom.css('display', 'none')
+      }
     },
 
     pagination: function() {
