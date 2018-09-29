@@ -442,6 +442,9 @@
       var self = this
       self._events = []
       function on(target, type, fn) {
+        if (type == 'resize') {
+          fn = debounce(fn)
+        }
         self._events.push({
           $target: $(target).on(type + this.eventNS, fn.bind(self)),
           type: type,
@@ -449,13 +452,11 @@
       }
 
       on(window, 'resize', function() {
-        if (this.currentImage == null) return
-        var resize = function() {
+        if (this.currentImage !== null) {
           var dims = this.fit(this.currentImage, this.$wrapper)
           this.center(dims.width, dims.height, dims.left, dims.top, 0)
           this.zoomable()
-        }.bind(this)
-        this.debounce(50, resize)
+        }
       })
 
       on(document, 'keydown', function(e) {
@@ -598,14 +599,21 @@
       var dims = this.fit(this.currentImage, this.$wrapper)
       return this.center(dims.width, dims.height, dims.left, dims.top, duration)
     },
-
-    debounce: function(duration, callback) {
-      clearTimeout(this.opts.timerDebounce)
-      this.opts.timerDebounce = setTimeout(function() {
-        callback()
-      }, duration)
-    },
   })
+
+  function debounce(fn) {
+    var timer
+    return function() {
+      var ctx = this
+      var args = [].slice.call(arguments)
+
+      clearTimeout(timer)
+      timer = setTimeout(function() {
+        fn.apply(ctx, args)
+        timer = null
+      }, 50)
+    }
+  }
 
   var defaults = {
     container: 'body',
