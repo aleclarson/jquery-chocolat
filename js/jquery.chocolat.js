@@ -40,18 +40,36 @@
 
     var self = this
     if (opts.images == null) {
+      var getImageURL = function($source) {
+        if (opts.imageSource == null) return
+        if (typeof opts.imageSource == 'function') {
+          return opts.imageSource($source)
+        }
+        if (typeof opts.imageSource == 'string') {
+          return $source.attr(opts.imageSource)
+        }
+        if ($source.is('a')) {
+          return $source.attr('href')
+        }
+        if ($source.is('img')) {
+          return $source.attr('data-orig') || $source.attr('src')
+        }
+      }
       this.$sources.each(function(i) {
-        var $this = $(this)
-        if (opts.getImageOptions) {
-          self.images.push(opts.getImageOptions($this))
+        var $source = $(this)
+        if (opts.configureImage) {
+          var image = opts.configureImage($source)
+          if (image) self.images.push(image)
           return
         }
-        self.images.push({
-          title: $this.attr('title'),
-          src: $this.attr(opts.imageSource),
-          height: false,
-          width: false,
-        })
+        var src = getImageURL($source)
+        src &&
+          self.images.push({
+            title: $source.attr('title'),
+            src: src,
+            height: false,
+            width: false,
+          })
       })
     }
 
@@ -662,7 +680,6 @@
   var defaults = {
     container: 'body',
     imageSelector: '.chocolat-image',
-    imageSource: 'href',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'
     fullScreen: null,
     loop: false,
