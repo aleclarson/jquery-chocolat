@@ -63,6 +63,23 @@
       return this.load(i)
     },
 
+    close: function(callback) {
+      if (this.isFullScreen) {
+        this.exitFullScreen()
+        if (!this.opts.fullScreen) return
+      }
+
+      var self = this
+      this.currentImage = null
+      this.$overlay
+        .add(this.$loader)
+        .add(this.$wrapper)
+        .fadeOut(200, function() {
+          self.$container.removeClass(cssPre + 'open')
+          callback && callback()
+        })
+    },
+
     preload: function(i) {
       var def = $.Deferred()
 
@@ -283,23 +300,6 @@
         this.opts.images[i].height = img.height
         this.opts.images[i].width = img.width
       }
-    },
-
-    close: function(callback) {
-      if (this.isFullScreen) {
-        this.exitFullScreen()
-        if (!this.opts.fullScreen) return
-      }
-
-      var self = this
-      this.currentImage = null
-      this.$overlay
-        .add(this.$loader)
-        .add(this.$wrapper)
-        .fadeOut(200, function() {
-          self.$container.removeClass(cssPre + 'open')
-          callback && callback()
-        })
     },
 
     destroy: function() {
