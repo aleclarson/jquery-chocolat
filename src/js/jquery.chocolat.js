@@ -665,57 +665,6 @@
         callback()
       }, duration)
     },
-
-    api: function() {
-      var self = this
-      return {
-        open: function(i) {
-          i = parseInt(i) || 0
-          return self.init(i)
-        },
-
-        close: function() {
-          return self.close()
-        },
-
-        next: function() {
-          return self.change(1)
-        },
-
-        prev: function() {
-          return self.change(-1)
-        },
-
-        goto: function(i) {
-          // open alias
-          return self.open(i)
-        },
-        current: function() {
-          return self.opts.currentImage
-        },
-
-        place: function() {
-          return self.place(self.opts.currentImage, self.opts.duration)
-        },
-
-        destroy: function() {
-          return self.destroy()
-        },
-
-        set: function(property, value) {
-          self.opts[property] = value
-          return value
-        },
-
-        get: function(property) {
-          return self.opts[property]
-        },
-
-        getElem: function(name) {
-          return self.elems[name]
-        },
-      }
-    },
   })
 
   var defaults = {
