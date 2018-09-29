@@ -20,7 +20,7 @@
   function Chocolat($el, opts) {
     this.id = nextId++
     this.opts = opts
-    this.ready = false
+    this.mounted = false
     this.images = opts.images || []
     this.currentImage = null
     this.isFullScreen = false
@@ -62,8 +62,8 @@
 
   $.extend(Chocolat.prototype, {
     open: function(i) {
-      if (!this.ready) {
-        this.ready = true
+      if (!this.mounted) {
+        this.mounted = true
         this.markup()
         this.events()
         if (this.opts.onReady) {
@@ -130,8 +130,8 @@
 
     destroy: function() {
       this.$el.removeData('chocolat')
-      if (this.ready) {
-        this.ready = false
+      if (this.mounted) {
+        this.mounted = false
         this.currentImage = null
 
         this.exitFullScreen()
@@ -255,7 +255,7 @@
       })
 
       on(document, 'keydown', function(e) {
-        if (this.ready && this.currentImage !== null) {
+        if (this.mounted && this.currentImage !== null) {
           if (e.keyCode == 37) {
             this.change(-1)
           } else if (e.keyCode == 39) {
