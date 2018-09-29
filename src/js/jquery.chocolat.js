@@ -53,10 +53,10 @@
         this.setDomContainer()
         this.markup()
         this.events()
+        if (this.opts.onReady) {
+          this.opts.onReady(this)
+        }
       }
-
-      this.opts.afterInitialize.call(this)
-
       return this.load(i)
     },
 
@@ -104,7 +104,9 @@
         })
         .then(function(imgLoader) {
           self.zoomable()
-          self.opts.afterImageLoad.call(self)
+          if (self.opts.onImageLoad) {
+            self.opts.onImageLoad(self)
+          }
         })
 
       var nextIndex = i + 1
@@ -394,7 +396,9 @@
         html: this.opts.setTitle,
       }).appendTo(this.$bottom)
 
-      this.opts.afterMarkup.call(this)
+      if (this.opts.onMarkup) {
+        this.opts.onMarkup(this)
+      }
     },
 
     openFullScreen: function() {
@@ -677,9 +681,6 @@
     showLoader: true,
     showPagination: true,
     imageSource: 'href',
-    afterInitialize: function() {},
-    afterMarkup: function() {},
-    afterImageLoad: function() {},
     zoomedPaddingX: function(canvasWidth, imgWidth) {
       return 0
     },
