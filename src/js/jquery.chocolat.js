@@ -38,10 +38,6 @@
     var self = this
     this.$sources.each(function(i) {
       var $this = $(this)
-      $this.on('click' + self.eventNS, function(e) {
-        e.preventDefault()
-        self.open(i)
-      })
       if (opts.getImageOptions) {
         self.images.push(opts.getImageOptions($this))
         return
@@ -52,6 +48,11 @@
         height: false,
         width: false,
       })
+    })
+
+    $el.on('click' + self.eventNS, opts.imageSelector, function(e) {
+      e.preventDefault()
+      self.open(self.$sources.index(this))
     })
 
     return this
