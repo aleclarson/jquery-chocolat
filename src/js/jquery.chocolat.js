@@ -54,7 +54,6 @@
     open: function(i) {
       if (!this.ready) {
         this.ready = true
-        this.setDomContainer()
         this.markup()
         this.events()
         if (this.opts.onReady) {
@@ -289,7 +288,7 @@
     close: function(callback) {
       if (this.isFullScreen) {
         this.exitFullScreen()
-        return
+        if (!this.opts.fullScreen) return
       }
 
       var self = this
@@ -333,7 +332,9 @@
     },
 
     markup: function() {
-      this.$container.addClass(cssPre + 'open ' + this.opts.className)
+      this.$container = $(this.opts.container)
+      this.$container.addClass(cssPre + 'open')
+
       if (this.opts.imageSize == 'cover') {
         this.$container.addClass(cssPre + 'cover')
       }
@@ -613,16 +614,6 @@
       )
     },
 
-    setDomContainer: function() {
-      // if container == window
-      // domContainer = body
-      if (this.opts.container === window) {
-        this.$container = $('body')
-      } else {
-        this.$container = $(this.opts.container)
-      }
-    },
-
     debounce: function(duration, callback) {
       clearTimeout(this.opts.timerDebounce)
       this.opts.timerDebounce = setTimeout(function() {
@@ -632,9 +623,8 @@
   })
 
   var defaults = {
-    container: window, // window or jquery object or jquery selector, or element
+    container: 'body',
     imageSelector: '.chocolat-image',
-    className: '',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'
     fullScreen: null,
     loop: false,
