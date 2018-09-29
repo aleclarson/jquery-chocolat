@@ -225,7 +225,7 @@
         class: cssPre + 'description',
       }).appendTo(this.$bottom)
 
-      if (this.opts.showPagination) {
+      if (!this.opts.hidePagination) {
         this.$pagination = $('<span/>', {
           class: cssPre + 'pagination',
         }).appendTo(this.$bottom)
@@ -658,7 +658,7 @@
     setTitle: '',
     enableZoom: true,
     hideLoader: false,
-    showPagination: true,
+    hidePagination: false,
     zoomedPaddingX: function(canvasWidth, imgWidth) {
       return 0
     },
