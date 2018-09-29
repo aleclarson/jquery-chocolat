@@ -109,9 +109,9 @@
       this.$wrapper.fadeIn(this.opts.duration)
       this.$container.addClass(cssPre + 'open')
 
-      if (this.opts.showLoader) {
+      if (this.$loader) {
         this.opts.timer = setTimeout(function() {
-          $.proxy(self.$loader.fadeIn(), self)
+          self.$loader.fadeIn()
         }, this.opts.duration)
       }
 
@@ -144,7 +144,7 @@
       this.currentImage = i
       this.description()
       this.arrows()
-      if (this.opts.showPagination) {
+      if (this.$pagination) {
         this.pagination()
       }
 
@@ -182,7 +182,7 @@
         self.$img.attr('src', self.opts.images[i].src)
       }
 
-      if (this.opts.showLoader) {
+      if (this.$loader) {
         this.$loader.stop().fadeOut(300, showImage)
       } else {
         showImage()
