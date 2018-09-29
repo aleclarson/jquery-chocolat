@@ -16,19 +16,18 @@
     'chocolat-zoomed',
   ]
 
-  function Chocolat(element, opts) {
+  function Chocolat($el, opts) {
     var self = this
 
+    this.$el = $el
     this.opts = opts
-    this.elems = {}
-    this.element = element
     this.isFullScreen = false
 
-    if (!this.opts.setTitle && element.data('chocolat-title')) {
-      this.opts.setTitle = element.data('chocolat-title')
+    if (!this.opts.setTitle && $el.data('chocolat-title')) {
+      this.opts.setTitle = $el.data('chocolat-title')
     }
 
-    this.element.find(this.opts.imageSelector).each(function() {
+    this.$el.find(this.opts.imageSelector).each(function() {
       var $this = $(this)
       self.opts.images.push({
         title: $this.attr('title'),
@@ -85,14 +84,12 @@
         return
       }
 
-      this.elems.overlay.fadeIn(this.opts.duration)
-      this.elems.wrapper.fadeIn(this.opts.duration)
-      this.elems.domContainer.addClass('chocolat-open')
+      this.$overlay.fadeIn(this.opts.duration)
+      this.$wrapper.fadeIn(this.opts.duration)
+      this.$container.addClass('chocolat-open')
 
       this.opts.timer = setTimeout(function() {
-        if (typeof self.elems != 'undefined') {
-          $.proxy(self.elems.loader.fadeIn(), self)
-        }
+        $.proxy(self.$loader.fadeIn(), self)
       }, this.opts.duration)
 
       var deferred = this.preload(i)
@@ -125,7 +122,7 @@
       this.arrows()
 
       this.storeImgSize(imgLoader, i)
-      fitting = this.fit(i, self.elems.wrapper)
+      fitting = this.fit(i, self.$wrapper)
 
       return this.center(
         fitting.width,
@@ -137,7 +134,7 @@
     },
 
     center: function(width, height, left, top, duration) {
-      return this.elems.content
+      return this.$content
         .css('overflow', 'visible')
         .animate(
           {
@@ -155,8 +152,8 @@
       var self = this
       clearTimeout(this.opts.timer)
 
-      this.elems.loader.stop().fadeOut(300, function() {
-        self.elems.img.attr('src', self.opts.images[i].src)
+      this.$loader.stop().fadeOut(300, function() {
+        self.$img.attr('src', self.opts.images[i].src)
       })
     },
 
@@ -233,30 +230,28 @@
 
     arrows: function() {
       if (this.opts.loop) {
-        $([this.elems.left[0], this.elems.right[0]]).addClass('active')
+        this.$prev.add(this.$next).addClass('active')
       } else if (this.opts.linkImages) {
         // right
         if (this.opts.currentImage == this.opts.lastImage) {
-          this.elems.right.removeClass('active')
+          this.$next.removeClass('active')
         } else {
-          this.elems.right.addClass('active')
+          this.$next.addClass('active')
         }
         // left
         if (this.opts.currentImage === 0) {
-          this.elems.left.removeClass('active')
+          this.$prev.removeClass('active')
         } else {
-          this.elems.left.addClass('active')
+          this.$prev.addClass('active')
         }
       } else {
-        $([this.elems.left[0], this.elems.right[0]]).removeClass('active')
+        this.$prev.add(this.$next).removeClass('active')
       }
     },
 
     description: function() {
       var self = this
-      this.elems.description.html(
-        self.opts.images[self.opts.currentImage].title
-      )
+      this.$description.html(self.opts.images[self.opts.currentImage].title)
     },
 
     pagination: function() {
@@ -264,7 +259,7 @@
       var last = this.opts.lastImage + 1
       var position = this.opts.currentImage + 1
 
-      this.elems.pagination.html(position + ' ' + self.opts.separator2 + last)
+      this.$pagination.html(position + ' ' + self.opts.separator2 + last)
     },
 
     storeImgSize: function(img, i) {
@@ -283,14 +278,10 @@
         return
       }
 
-      var els = [
-        this.elems.overlay[0],
-        this.elems.loader[0],
-        this.elems.wrapper[0],
-      ]
+      var els = [this.$overlay[0], this.$loader[0], this.$wrapper[0]]
       var self = this
       var def = $.when($(els).fadeOut(200)).done(function() {
-        self.elems.domContainer.removeClass('chocolat-open')
+        self.$domContainer.removeClass('chocolat-open')
       })
       this.opts.currentImage = false
 
@@ -298,8 +289,8 @@
     },
 
     destroy: function() {
-      this.element.removeData()
-      this.element.find(this.opts.imageSelector).off('click.chocolat')
+      $el.removeData('chocolat')
+      $el.find(this.opts.imageSelector).off('click.chocolat')
 
       if (!this.opts.initialized) {
         return
@@ -309,91 +300,89 @@
       }
       this.opts.currentImage = false
       this.opts.initialized = false
-      this.elems.domContainer.removeClass(transientClasses.join(' '))
-      this.elems.wrapper.remove()
+      this.$domContainer.removeClass(transientClasses.join(' '))
+      this.$wrapper.remove()
     },
 
     getOutMarginW: function() {
-      var left = this.elems.left.outerWidth(true)
-      var right = this.elems.right.outerWidth(true)
+      var left = this.$prev.outerWidth(true)
+      var right = this.$next.outerWidth(true)
       return left + right
     },
 
     getOutMarginH: function() {
-      return (
-        this.elems.top.outerHeight(true) + this.elems.bottom.outerHeight(true)
-      )
+      return this.$top.outerHeight(true) + this.$bottom.outerHeight(true)
     },
 
     markup: function() {
-      this.elems.domContainer.addClass('chocolat-open ' + this.opts.className)
+      this.$domContainer.addClass('chocolat-open ' + this.opts.className)
       if (this.opts.imageSize == 'cover') {
-        this.elems.domContainer.addClass('chocolat-cover')
+        this.$domContainer.addClass('chocolat-cover')
       }
       if (this.opts.container !== window) {
-        this.elems.domContainer.addClass('chocolat-in-container')
+        this.$domContainer.addClass('chocolat-in-container')
       }
 
-      this.elems.wrapper = $('<div/>', {
+      this.$wrapper = $('<div/>', {
         class: 'chocolat-wrapper',
         id: 'chocolat-content-' + this.opts.setIndex,
-      }).appendTo(this.elems.domContainer)
+      }).appendTo(this.$domContainer)
 
-      this.elems.overlay = $('<div/>', {
+      this.$overlay = $('<div/>', {
         class: 'chocolat-overlay',
-      }).appendTo(this.elems.wrapper)
+      }).appendTo(this.$wrapper)
 
-      this.elems.loader = $('<div/>', {
+      this.$loader = $('<div/>', {
         class: 'chocolat-loader',
-      }).appendTo(this.elems.wrapper)
+      }).appendTo(this.$wrapper)
 
-      this.elems.content = $('<div/>', {
+      this.$content = $('<div/>', {
         class: 'chocolat-content',
-      }).appendTo(this.elems.wrapper)
+      }).appendTo(this.$wrapper)
 
-      this.elems.img = $('<img/>', {
+      this.$img = $('<img/>', {
         class: 'chocolat-img',
         src: '',
-      }).appendTo(this.elems.content)
+      }).appendTo(this.$content)
 
-      this.elems.top = $('<div/>', {
+      this.$top = $('<div/>', {
         class: 'chocolat-top',
-      }).appendTo(this.elems.wrapper)
+      }).appendTo(this.$wrapper)
 
-      this.elems.left = $('<div/>', {
+      this.$prev = $('<div/>', {
         class: 'chocolat-left',
-      }).appendTo(this.elems.wrapper)
+      }).appendTo(this.$wrapper)
 
-      this.elems.right = $('<div/>', {
+      this.$next = $('<div/>', {
         class: 'chocolat-right',
-      }).appendTo(this.elems.wrapper)
+      }).appendTo(this.$wrapper)
 
-      this.elems.bottom = $('<div/>', {
+      this.$bottom = $('<div/>', {
         class: 'chocolat-bottom',
-      }).appendTo(this.elems.wrapper)
+      }).appendTo(this.$wrapper)
 
-      this.elems.close = $('<span/>', {
+      this.$close = $('<span/>', {
         class: 'chocolat-close',
-      }).appendTo(this.elems.top)
+      }).appendTo(this.$top)
 
       if (this.opts.fullScreen !== false) {
-        this.elems.fullscreen = $('<span/>', {
+        this.$fullscreen = $('<span/>', {
           class: 'chocolat-fullscreen',
-        }).appendTo(this.elems.bottom)
+        }).appendTo(this.$bottom)
       }
 
-      this.elems.description = $('<span/>', {
+      this.$description = $('<span/>', {
         class: 'chocolat-description',
-      }).appendTo(this.elems.bottom)
+      }).appendTo(this.$bottom)
 
-      this.elems.pagination = $('<span/>', {
+      this.$pagination = $('<span/>', {
         class: 'chocolat-pagination',
-      }).appendTo(this.elems.bottom)
+      }).appendTo(this.$bottom)
 
-      this.elems.setTitle = $('<span/>', {
+      this.$setTitle = $('<span/>', {
         class: 'chocolat-set-title',
         html: this.opts.setTitle,
-      }).appendTo(this.elems.bottom)
+      }).appendTo(this.$bottom)
 
       this.opts.afterMarkup.call(this)
     },
@@ -402,7 +391,7 @@
       if (this.isFullScreen) return
       this.isFullScreen = true
 
-      var wrapper = this.elems.wrapper[0]
+      var wrapper = this.$wrapper[0]
       if (wrapper.requestFullscreen) {
         wrapper.requestFullscreen()
       } else if (wrapper.mozRequestFullScreen) {
@@ -447,79 +436,73 @@
             }
           }
         })
-      // this.elems.wrapper.find('.chocolat-img')
+      // this.$wrapper.find('.chocolat-img')
       //     .off('click.chocolat')
       //     .on('click.chocolat', function(e) {
       //         var currentImage = self.opts.images[self.opts.currentImage];
-      //         if(currentImage.width > $(self.elems.wrapper).width() || currentImage.height > $(self.elems.wrapper).height() ){
+      //         if(currentImage.width > $(self.$wrapper).width() || currentImage.height > $(self.$wrapper).height() ){
       //             self.toggleZoom(e);
       //         }
       // });
 
-      this.elems.wrapper
+      this.$wrapper
         .find('.chocolat-right')
         .off('click.chocolat')
         .on('click.chocolat', function() {
           self.change(+1)
         })
 
-      this.elems.wrapper
+      this.$wrapper
         .find('.chocolat-left')
         .off('click.chocolat')
         .on('click.chocolat', function() {
           return self.change(-1)
         })
 
-      $([this.elems.overlay[0], this.elems.close[0]])
+      $([this.$overlay[0], this.$close[0]])
         .off('click.chocolat')
         .on('click.chocolat', function() {
           return self.close()
         })
 
       if (this.opts.fullScreen !== false) {
-        this.elems.fullscreen
-          .off('click.chocolat')
-          .on('click.chocolat', function() {
-            if (self.opts.fullscreenOpen) {
-              self.exitFullScreen()
-              return
-            }
+        this.$fullscreen.off('click.chocolat').on('click.chocolat', function() {
+          if (self.opts.fullscreenOpen) {
+            self.exitFullScreen()
+            return
+          }
 
-            self.openFullScreen()
-          })
+          self.openFullScreen()
+        })
       }
 
       if (self.opts.backgroundClose) {
-        this.elems.overlay
-          .off('click.chocolat')
-          .on('click.chocolat', function() {
-            return self.close()
-          })
-      }
-      this.elems.wrapper
-        .off('click.chocolat')
-        .on('click.chocolat', function(e) {
-          return self.zoomOut(e)
+        this.$overlay.off('click.chocolat').on('click.chocolat', function() {
+          return self.close()
         })
+      }
+      this.$wrapper.off('click.chocolat').on('click.chocolat', function(e) {
+        return self.zoomOut(e)
+      })
 
-      this.elems.wrapper
+      this.$wrapper
         .find('.chocolat-img')
         .off('click.chocolat')
         .on('click.chocolat', function(e) {
           if (
             self.opts.initialZoomState === null &&
-            self.elems.domContainer.hasClass('chocolat-zoomable')
+            self.$domContainer.hasClass('chocolat-zoomable')
           ) {
             e.stopPropagation()
             return self.zoomIn(e)
           }
         })
 
-      this.elems.wrapper.mousemove(function(e) {
+      this.$wrapper.mousemove(function(e) {
         if (self.opts.initialZoomState === null) {
           return
         }
-        if (self.elems.img.is(':animated')) {
+        if (self.$img.is(':animated')) {
           return
         }
 
@@ -555,11 +538,11 @@
           'margin-top': -mvtY + 'px',
         }
         if (typeof e.duration !== 'undefined') {
-          $(self.elems.img)
+          $(self.$img)
             .stop(false, true)
             .animate(animation, e.duration)
         } else {
-          $(self.elems.img)
+          $(self.$img)
             .stop(false, true)
             .css(animation)
         }
@@ -569,7 +552,7 @@
           return
         }
         self.debounce(50, function() {
-          var fitting = self.fit(self.opts.currentImage, self.elems.wrapper)
+          var fitting = self.fit(self.opts.currentImage, self.$wrapper)
           self.center(
             fitting.width,
             fitting.height,
@@ -584,8 +567,8 @@
 
     zoomable: function() {
       var currentImage = this.opts.images[this.opts.currentImage]
-      var wrapperWidth = this.elems.wrapper.width()
-      var wrapperHeight = this.elems.wrapper.height()
+      var wrapperWidth = this.$wrapper.width()
+      var wrapperHeight = this.$wrapper.height()
 
       var isImageZoomable =
         this.opts.enableZoom &&
@@ -594,13 +577,13 @@
           ? true
           : false
       var isImageStretched =
-        this.elems.img.width() > currentImage.width ||
-        this.elems.img.height() > currentImage.height
+        this.$img.width() > currentImage.width ||
+        this.$img.height() > currentImage.height
 
       if (isImageZoomable && !isImageStretched) {
-        this.elems.domContainer.addClass('chocolat-zoomable')
+        this.$domContainer.addClass('chocolat-zoomable')
       } else {
-        this.elems.domContainer.removeClass('chocolat-zoomable')
+        this.$domContainer.removeClass('chocolat-zoomable')
       }
     },
 
@@ -612,10 +595,10 @@
       event.pageX = e.pageX
       event.pageY = e.pageY
       event.duration = this.opts.duration
-      this.elems.wrapper.trigger(event)
+      this.$wrapper.trigger(event)
 
-      this.elems.domContainer.addClass('chocolat-zoomed')
-      var fitting = this.fit(this.opts.currentImage, this.elems.wrapper)
+      this.$domContainer.addClass('chocolat-zoomed')
+      var fitting = this.fit(this.opts.currentImage, this.$wrapper)
       return this.center(
         fitting.width,
         fitting.height,
@@ -636,10 +619,10 @@
 
       this.opts.imageSize = this.opts.initialZoomState
       this.opts.initialZoomState = null
-      this.elems.img.animate({ margin: 0 }, duration)
+      this.$img.animate({ margin: 0 }, duration)
 
-      this.elems.domContainer.removeClass('chocolat-zoomed')
-      var fitting = this.fit(this.opts.currentImage, this.elems.wrapper)
+      this.$domContainer.removeClass('chocolat-zoomed')
+      var fitting = this.fit(this.opts.currentImage, this.$wrapper)
       return this.center(
         fitting.width,
         fitting.height,
@@ -653,9 +636,9 @@
       // if container == window
       // domContainer = body
       if (this.opts.container === window) {
-        this.elems.domContainer = $('body')
+        this.$container = $('body')
       } else {
-        this.elems.domContainer = $(this.opts.container)
+        this.$container = $(this.opts.container)
       }
     },
 
