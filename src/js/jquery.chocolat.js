@@ -13,6 +13,7 @@
     this.settings = settings
     this.elems = {}
     this.element = element
+    this.isFullScreen = false
 
     this._cssClasses = [
       'chocolat-open',
@@ -79,7 +80,7 @@
 
     load: function(i) {
       var that = this
-      if (this.settings.fullScreen) {
+      if (this.settings.fullScreen == true) {
         this.openFullScreen()
       }
 
@@ -282,7 +283,7 @@
     },
 
     close: function() {
-      if (this.settings.fullscreenOpen) {
+      if (this.isFullScreen) {
         this.exitFullScreen()
         return
       }
@@ -308,7 +309,7 @@
       if (!this.settings.initialized) {
         return
       }
-      if (this.settings.fullscreenOpen) {
+      if (this.isFullScreen) {
         this.exitFullScreen()
       }
       this.settings.currentImage = false
@@ -382,9 +383,11 @@
         class: 'chocolat-close',
       }).appendTo(this.elems.top)
 
-      this.elems.fullscreen = $('<span/>', {
-        class: 'chocolat-fullscreen',
-      }).appendTo(this.elems.bottom)
+      if (this.settings.fullScreen !== false) {
+        this.elems.fullscreen = $('<span/>', {
+          class: 'chocolat-fullscreen',
+        }).appendTo(this.elems.bottom)
+      }
 
       this.elems.description = $('<span/>', {
         class: 'chocolat-description',
@@ -403,40 +406,35 @@
     },
 
     openFullScreen: function() {
-      var wrapper = this.elems.wrapper[0]
+      if (this.isFullScreen) return
+      this.isFullScreen = true
 
+      var wrapper = this.elems.wrapper[0]
       if (wrapper.requestFullscreen) {
-        this.settings.fullscreenOpen = true
         wrapper.requestFullscreen()
       } else if (wrapper.mozRequestFullScreen) {
-        this.settings.fullscreenOpen = true
         wrapper.mozRequestFullScreen()
       } else if (wrapper.webkitRequestFullscreen) {
-        this.settings.fullscreenOpen = true
         wrapper.webkitRequestFullscreen()
       } else if (wrapper.msRequestFullscreen) {
         wrapper.msRequestFullscreen()
-        this.settings.fullscreenOpen = true
       } else {
-        this.settings.fullscreenOpen = false
+        this.isFullScreen = false
       }
     },
 
     exitFullScreen: function() {
+      if (!this.isFullScreen) return
+      this.isFullScreen = false
+
       if (document.exitFullscreen) {
         document.exitFullscreen()
-        this.settings.fullscreenOpen = false
       } else if (document.mozCancelFullScreen) {
         document.mozCancelFullScreen()
-        this.settings.fullscreenOpen = false
       } else if (document.webkitExitFullscreen) {
         document.webkitExitFullscreen()
-        this.settings.fullscreenOpen = false
       } else if (document.msExitFullscreen) {
         document.msExitFullscreen()
-        this.settings.fullscreenOpen = false
-      } else {
-        this.settings.fullscreenOpen = true
       }
     },
 
@@ -485,16 +483,18 @@
           return that.close()
         })
 
-      this.elems.fullscreen
-        .off('click.chocolat')
-        .on('click.chocolat', function() {
-          if (that.settings.fullscreenOpen) {
-            that.exitFullScreen()
-            return
-          }
+      if (this.settings.fullScreen !== false) {
+        this.elems.fullscreen
+          .off('click.chocolat')
+          .on('click.chocolat', function() {
+            if (that.settings.fullscreenOpen) {
+              that.exitFullScreen()
+              return
+            }
 
-          that.openFullScreen()
-        })
+            that.openFullScreen()
+          })
+      }
 
       if (that.settings.backgroundClose) {
         this.elems.overlay
@@ -734,7 +734,7 @@
     className: '',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'
     initialZoomState: null,
-    fullScreen: false,
+    fullScreen: null,
     loop: false,
     linkImages: true,
     duration: 300,
