@@ -293,7 +293,7 @@
         .add(this.$loader)
         .add(this.$wrapper)
         .fadeOut(200, function() {
-          self.$domContainer.removeClass('chocolat-open')
+          self.$container.removeClass('chocolat-open')
           callback && callback()
         })
     },
@@ -310,7 +310,7 @@
       }
       this.opts.currentImage = false
       this.opts.initialized = false
-      this.$domContainer.removeClass(transientClasses.join(' '))
+      this.$container.removeClass(transientClasses.join(' '))
       this.$wrapper.remove()
     },
 
@@ -325,18 +325,18 @@
     },
 
     markup: function() {
-      this.$domContainer.addClass('chocolat-open ' + this.opts.className)
+      this.$container.addClass('chocolat-open ' + this.opts.className)
       if (this.opts.imageSize == 'cover') {
-        this.$domContainer.addClass('chocolat-cover')
+        this.$container.addClass('chocolat-cover')
       }
       if (this.opts.container !== window) {
-        this.$domContainer.addClass('chocolat-in-container')
+        this.$container.addClass('chocolat-in-container')
       }
 
       this.$wrapper = $('<div/>', {
         class: 'chocolat-wrapper',
         id: 'chocolat-content-' + this.opts.setIndex,
-      }).appendTo(this.$domContainer)
+      }).appendTo(this.$container)
 
       this.$overlay = $('<div/>', {
         class: 'chocolat-overlay',
@@ -505,7 +505,7 @@
         .on('click.chocolat', function(e) {
           if (
             self.opts.initialZoomState === null &&
-            self.$domContainer.hasClass('chocolat-zoomable')
+            self.$container.hasClass('chocolat-zoomable')
           ) {
             e.stopPropagation()
             return self.zoomIn(e)
@@ -595,9 +595,9 @@
         this.$img.height() > currentImage.height
 
       if (isImageZoomable && !isImageStretched) {
-        this.$domContainer.addClass('chocolat-zoomable')
+        this.$container.addClass('chocolat-zoomable')
       } else {
-        this.$domContainer.removeClass('chocolat-zoomable')
+        this.$container.removeClass('chocolat-zoomable')
       }
     },
 
@@ -611,7 +611,7 @@
       event.duration = this.opts.duration
       this.$wrapper.trigger(event)
 
-      this.$domContainer.addClass('chocolat-zoomed')
+      this.$container.addClass('chocolat-zoomed')
       var fitting = this.fit(this.opts.currentImage, this.$wrapper)
       return this.center(
         fitting.width,
@@ -635,7 +635,7 @@
       this.opts.initialZoomState = null
       this.$img.animate({ margin: 0 }, duration)
 
-      this.$domContainer.removeClass('chocolat-zoomed')
+      this.$container.removeClass('chocolat-zoomed')
       var fitting = this.fit(this.opts.currentImage, this.$wrapper)
       return this.center(
         fitting.width,
