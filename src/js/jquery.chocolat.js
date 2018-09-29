@@ -18,33 +18,39 @@
   ]
 
   function Chocolat($el, opts) {
-    var self = this
-
     this.id = nextId++
-    this.$el = $el
     this.opts = opts
     this.ready = false
+    this.images = []
     this.currentImage = null
     this.isFullScreen = false
     this.initialZoomState = null
     this.loaderDelay = null
     this.eventNS = '.chocolat-' + this.id
 
-    if (!this.opts.setTitle && $el.data(cssPre + 'title')) {
-      this.opts.setTitle = $el.data(cssPre + 'title')
+    if (!opts.setTitle && $el.data(cssPre + 'title')) {
+      opts.setTitle = $el.data(cssPre + 'title')
     }
 
-    this.$el.find(this.opts.imageSelector).each(function() {
+    this.$el = $el
+    this.$sources = $el.find(opts.imageSelector)
+
+    var self = this
+    this.$sources.each(function(i) {
       var $this = $(this)
-      self.opts.images.push({
+      $this.on('click' + self.eventNS, function(e) {
+        e.preventDefault()
+        self.open(i)
+      })
+      if (opts.getImageOptions) {
+        self.images.push(opts.getImageOptions($this))
+        return
+      }
+      self.images.push({
         title: $this.attr('title'),
-        src: $this.attr(self.opts.imageSource),
+        src: $this.attr(opts.imageSource),
         height: false,
         width: false,
-      })
-      $this.on('click' + this.eventNS, function(e) {
-        self.open(i)
-        e.preventDefault()
       })
     })
 
@@ -142,6 +148,7 @@
         this.$wrapper.remove()
 
         // Remove event listeners
+        this.$sources.off('click' + this.eventNS)
         this._events.forEach(function(event) {
           event.$target.off(event.type + this.eventNS)
         }, this)
@@ -643,18 +650,16 @@
   var defaults = {
     container: 'body',
     imageSelector: '.chocolat-image',
+    imageSource: 'href',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'
     fullScreen: null,
     loop: false,
     linkImages: true,
     duration: 300,
     setTitle: '',
-    separator2: '/',
-    images: [],
     enableZoom: true,
     showLoader: true,
     showPagination: true,
-    imageSource: 'href',
     zoomedPaddingX: function(canvasWidth, imgWidth) {
       return 0
     },
