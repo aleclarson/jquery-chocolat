@@ -656,7 +656,7 @@
     linkImages: true,
     duration: 300,
     setTitle: '',
-    enableZoom: true,
+    enableZoom: false,
     hideLoader: false,
     hidePagination: false,
     zoomedPaddingX: function(canvasWidth, imgWidth) {
