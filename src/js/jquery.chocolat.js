@@ -8,7 +8,7 @@
   var calls = 0
 
   function Chocolat(element, settings) {
-    var that = this
+    var self = this
 
     this.settings = settings
     this.elems = {}
@@ -29,14 +29,14 @@
 
     this.element.find(this.settings.imageSelector).each(function() {
       var $this = $(this)
-      that.settings.images.push({
+      self.settings.images.push({
         title: $this.attr('title'),
-        src: $this.attr(that.settings.imageSource),
+        src: $this.attr(self.settings.imageSource),
         height: false,
         width: false,
       })
       $this.off('click.chocolat').on('click.chocolat', function(e) {
-        that.init(i)
+        self.init(i)
         e.preventDefault()
       })
     })
@@ -75,7 +75,7 @@
     },
 
     load: function(i) {
-      var that = this
+      var self = this
       if (this.settings.fullScreen == true) {
         this.openFullScreen()
       }
@@ -89,21 +89,21 @@
       this.elems.domContainer.addClass('chocolat-open')
 
       this.settings.timer = setTimeout(function() {
-        if (typeof that.elems != 'undefined') {
-          $.proxy(that.elems.loader.fadeIn(), that)
+        if (typeof self.elems != 'undefined') {
+          $.proxy(self.elems.loader.fadeIn(), self)
         }
       }, this.settings.duration)
 
       var deferred = this.preload(i)
         .then(function(imgLoader) {
-          return that.place(i, imgLoader)
+          return self.place(i, imgLoader)
         })
         .then(function(imgLoader) {
-          return that.appear(i)
+          return self.appear(i)
         })
         .then(function(imgLoader) {
-          that.zoomable()
-          that.settings.afterImageLoad.call(that)
+          self.zoomable()
+          self.settings.afterImageLoad.call(self)
         })
 
       var nextIndex = i + 1
@@ -115,7 +115,7 @@
     },
 
     place: function(i, imgLoader) {
-      var that = this
+      var self = this
       var fitting
 
       this.settings.currentImage = i
@@ -124,7 +124,7 @@
       this.arrows()
 
       this.storeImgSize(imgLoader, i)
-      fitting = this.fit(i, that.elems.wrapper)
+      fitting = this.fit(i, self.elems.wrapper)
 
       return this.center(
         fitting.width,
@@ -151,11 +151,11 @@
     },
 
     appear: function(i) {
-      var that = this
+      var self = this
       clearTimeout(this.settings.timer)
 
       this.elems.loader.stop().fadeOut(300, function() {
-        that.elems.img.attr('src', that.settings.images[i].src)
+        self.elems.img.attr('src', self.settings.images[i].src)
       })
     },
 
@@ -252,19 +252,19 @@
     },
 
     description: function() {
-      var that = this
+      var self = this
       this.elems.description.html(
-        that.settings.images[that.settings.currentImage].title
+        self.settings.images[self.settings.currentImage].title
       )
     },
 
     pagination: function() {
-      var that = this
+      var self = this
       var last = this.settings.lastImage + 1
       var position = this.settings.currentImage + 1
 
       this.elems.pagination.html(
-        position + ' ' + that.settings.separator2 + last
+        position + ' ' + self.settings.separator2 + last
       )
     },
 
@@ -289,9 +289,9 @@
         this.elems.loader[0],
         this.elems.wrapper[0],
       ]
-      var that = this
+      var self = this
       var def = $.when($(els).fadeOut(200)).done(function() {
-        that.elems.domContainer.removeClass('chocolat-open')
+        self.elems.domContainer.removeClass('chocolat-open')
       })
       this.settings.currentImage = false
 
@@ -435,27 +435,27 @@
     },
 
     events: function() {
-      var that = this
+      var self = this
 
       $(document)
         .off('keydown.chocolat')
         .on('keydown.chocolat', function(e) {
-          if (that.settings.initialized) {
+          if (self.settings.initialized) {
             if (e.keyCode == 37) {
-              that.change(-1)
+              self.change(-1)
             } else if (e.keyCode == 39) {
-              that.change(1)
+              self.change(1)
             } else if (e.keyCode == 27) {
-              that.close()
+              self.close()
             }
           }
         })
       // this.elems.wrapper.find('.chocolat-img')
       //     .off('click.chocolat')
       //     .on('click.chocolat', function(e) {
-      //         var currentImage = that.settings.images[that.settings.currentImage];
-      //         if(currentImage.width > $(that.elems.wrapper).width() || currentImage.height > $(that.elems.wrapper).height() ){
-      //             that.toggleZoom(e);
+      //         var currentImage = self.settings.images[self.settings.currentImage];
+      //         if(currentImage.width > $(self.elems.wrapper).width() || currentImage.height > $(self.elems.wrapper).height() ){
+      //             self.toggleZoom(e);
       //         }
       // });
 
@@ -463,46 +463,46 @@
         .find('.chocolat-right')
         .off('click.chocolat')
         .on('click.chocolat', function() {
-          that.change(+1)
+          self.change(+1)
         })
 
       this.elems.wrapper
         .find('.chocolat-left')
         .off('click.chocolat')
         .on('click.chocolat', function() {
-          return that.change(-1)
+          return self.change(-1)
         })
 
       $([this.elems.overlay[0], this.elems.close[0]])
         .off('click.chocolat')
         .on('click.chocolat', function() {
-          return that.close()
+          return self.close()
         })
 
       if (this.settings.fullScreen !== false) {
         this.elems.fullscreen
           .off('click.chocolat')
           .on('click.chocolat', function() {
-            if (that.settings.fullscreenOpen) {
-              that.exitFullScreen()
+            if (self.settings.fullscreenOpen) {
+              self.exitFullScreen()
               return
             }
 
-            that.openFullScreen()
+            self.openFullScreen()
           })
       }
 
-      if (that.settings.backgroundClose) {
+      if (self.settings.backgroundClose) {
         this.elems.overlay
           .off('click.chocolat')
           .on('click.chocolat', function() {
-            return that.close()
+            return self.close()
           })
       }
       this.elems.wrapper
         .off('click.chocolat')
         .on('click.chocolat', function(e) {
-          return that.zoomOut(e)
+          return self.zoomOut(e)
         })
 
       this.elems.wrapper
@@ -510,19 +510,19 @@
         .off('click.chocolat')
         .on('click.chocolat', function(e) {
           if (
-            that.settings.initialZoomState === null &&
-            that.elems.domContainer.hasClass('chocolat-zoomable')
+            self.settings.initialZoomState === null &&
+            self.elems.domContainer.hasClass('chocolat-zoomable')
           ) {
             e.stopPropagation()
-            return that.zoomIn(e)
+            return self.zoomIn(e)
           }
         })
 
       this.elems.wrapper.mousemove(function(e) {
-        if (that.settings.initialZoomState === null) {
+        if (self.settings.initialZoomState === null) {
           return
         }
-        if (that.elems.img.is(':animated')) {
+        if (self.elems.img.is(':animated')) {
           return
         }
 
@@ -530,7 +530,7 @@
         var height = $(this).height()
         var width = $(this).width()
 
-        var currentImage = that.settings.images[that.settings.currentImage]
+        var currentImage = self.settings.images[self.settings.currentImage]
         var imgWidth = currentImage.width
         var imgHeight = currentImage.height
 
@@ -541,14 +541,14 @@
 
         var mvtX = 0
         if (imgWidth > width) {
-          var paddingX = that.settings.zoomedPaddingX(imgWidth, width)
+          var paddingX = self.settings.zoomedPaddingX(imgWidth, width)
           mvtX = coord[0] / (width / 2)
           mvtX = ((imgWidth - width) / 2 + paddingX) * mvtX
         }
 
         var mvtY = 0
         if (imgHeight > height) {
-          var paddingY = that.settings.zoomedPaddingY(imgHeight, height)
+          var paddingY = self.settings.zoomedPaddingY(imgHeight, height)
           mvtY = coord[1] / (height / 2)
           mvtY = ((imgHeight - height) / 2 + paddingY) * mvtY
         }
@@ -558,32 +558,32 @@
           'margin-top': -mvtY + 'px',
         }
         if (typeof e.duration !== 'undefined') {
-          $(that.elems.img)
+          $(self.elems.img)
             .stop(false, true)
             .animate(animation, e.duration)
         } else {
-          $(that.elems.img)
+          $(self.elems.img)
             .stop(false, true)
             .css(animation)
         }
       })
       $(window).on('resize', function() {
         if (
-          !that.settings.initialized ||
-          that.settings.currentImage === false
+          !self.settings.initialized ||
+          self.settings.currentImage === false
         ) {
           return
         }
-        that.debounce(50, function() {
-          var fitting = that.fit(that.settings.currentImage, that.elems.wrapper)
-          that.center(
+        self.debounce(50, function() {
+          var fitting = self.fit(self.settings.currentImage, self.elems.wrapper)
+          self.center(
             fitting.width,
             fitting.height,
             fitting.left,
             fitting.top,
             0
           )
-          that.zoomable()
+          self.zoomable()
         })
       })
     },
@@ -673,52 +673,52 @@
     },
 
     api: function() {
-      var that = this
+      var self = this
       return {
         open: function(i) {
           i = parseInt(i) || 0
-          return that.init(i)
+          return self.init(i)
         },
 
         close: function() {
-          return that.close()
+          return self.close()
         },
 
         next: function() {
-          return that.change(1)
+          return self.change(1)
         },
 
         prev: function() {
-          return that.change(-1)
+          return self.change(-1)
         },
 
         goto: function(i) {
           // open alias
-          return that.open(i)
+          return self.open(i)
         },
         current: function() {
-          return that.settings.currentImage
+          return self.settings.currentImage
         },
 
         place: function() {
-          return that.place(that.settings.currentImage, that.settings.duration)
+          return self.place(self.settings.currentImage, self.settings.duration)
         },
 
         destroy: function() {
-          return that.destroy()
+          return self.destroy()
         },
 
         set: function(property, value) {
-          that.settings[property] = value
+          self.settings[property] = value
           return value
         },
 
         get: function(property) {
-          return that.settings[property]
+          return self.settings[property]
         },
 
         getElem: function(name) {
-          return that.elems[name]
+          return self.elems[name]
         },
       }
     },
