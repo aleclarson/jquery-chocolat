@@ -36,19 +36,21 @@
     this.$sources = $el.find(opts.imageSelector)
 
     var self = this
-    this.$sources.each(function(i) {
-      var $this = $(this)
-      if (opts.getImageOptions) {
-        self.images.push(opts.getImageOptions($this))
-        return
-      }
-      self.images.push({
-        title: $this.attr('title'),
-        src: $this.attr(opts.imageSource),
-        height: false,
-        width: false,
+    if (opts.images == null) {
+      this.$sources.each(function(i) {
+        var $this = $(this)
+        if (opts.getImageOptions) {
+          self.images.push(opts.getImageOptions($this))
+          return
+        }
+        self.images.push({
+          title: $this.attr('title'),
+          src: $this.attr(opts.imageSource),
+          height: false,
+          width: false,
+        })
       })
-    })
+    }
 
     $el.on('click' + self.eventNS, opts.imageSelector, function(e) {
       e.preventDefault()
