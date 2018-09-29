@@ -353,7 +353,7 @@
       this.currentImage = i
 
       // Hide previous image while loading
-      self.$img.attr('src', '#')
+      this.$img.attr('src', '#')
 
       this.description()
       this.arrows()
