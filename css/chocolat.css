@@ -161,7 +161,6 @@ body > .chocolat-wrapper {
 }
 
 /* uncomment to hide controls when zoomed-in*/
-/*
 .chocolat-zoomable .chocolat-top,
 .chocolat-zoomable .chocolat-bottom,
 .chocolat-zoomable .chocolat-next,
@@ -177,4 +176,3 @@ body > .chocolat-wrapper {
   visibility: hidden;
   opacity: 0;
 }
-*/
