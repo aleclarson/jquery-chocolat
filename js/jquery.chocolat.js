@@ -391,8 +391,8 @@
         })
         .then(function(imgLoader) {
           self.zoomable()
-          if (self.opts.onImageLoad) {
-            self.opts.onImageLoad(self)
+          if (self.opts.onChange) {
+            self.opts.onChange(self)
           }
         })
 
