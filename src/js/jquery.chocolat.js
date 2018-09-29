@@ -23,7 +23,7 @@
     this.id = nextId++
     this.$el = $el
     this.opts = opts
-    this.initialized = false
+    this.ready = false
     this.currentImage = null
     this.isFullScreen = false
     this.initialZoomState = null
@@ -42,7 +42,7 @@
         width: false,
       })
       $this.on('click' + this.eventNS, function(e) {
-        self.init(i)
+        self.open(i)
         e.preventDefault()
       })
     })
@@ -51,9 +51,9 @@
   }
 
   $.extend(Chocolat.prototype, {
-    init: function(i) {
-      if (!this.initialized) {
-        this.initialized = true
+    open: function(i) {
+      if (!this.ready) {
+        this.ready = true
         this.setDomContainer()
         this.markup()
         this.events()
@@ -298,15 +298,15 @@
         .add(this.$loader)
         .add(this.$wrapper)
         .fadeOut(200, function() {
-          self.$container.removeClass('chocolat-open')
+          self.$container.removeClass(cssPre + 'open')
           callback && callback()
         })
     },
 
     destroy: function() {
       $el.removeData('chocolat')
-      if (this.initialized) {
-        this.initialized = false
+      if (this.ready) {
+        this.ready = false
         this.currentImage = null
 
         this.exitFullScreen()
@@ -465,7 +465,7 @@
       })
 
       on(document, 'keydown', function(e) {
-        if (this.initialized && this.currentImage !== null) {
+        if (this.ready && this.currentImage !== null) {
           if (e.keyCode == 37) {
             this.change(-1)
           } else if (e.keyCode == 39) {
