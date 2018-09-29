@@ -158,7 +158,9 @@
      */
 
     markup: function() {
-      this.$container = $(this.opts.container)
+      this.$container = this.opts.container
+        ? $(this.opts.container)
+        : $('<div class="chocolat-wrapper">').appendTo(this.$el)
 
       if (this.opts.imageSize == 'cover') {
         this.$container.addClass(cssPre + 'cover')
@@ -647,7 +649,6 @@
   }
 
   var defaults = {
-    container: 'body',
     imageSelector: '.chocolat-image',
     imageSource: 'href',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'
