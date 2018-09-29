@@ -28,21 +28,17 @@
     }
 
     this.element.find(this.settings.imageSelector).each(function() {
+      var $this = $(this)
       that.settings.images.push({
-        title: $(this).attr('title'),
-        src: $(this).attr(that.settings.imageSource),
+        title: $this.attr('title'),
+        src: $this.attr(that.settings.imageSource),
         height: false,
         width: false,
       })
-    })
-
-    this.element.find(this.settings.imageSelector).each(function(i) {
-      $(this)
-        .off('click.chocolat')
-        .on('click.chocolat', function(e) {
-          that.init(i)
-          e.preventDefault()
-        })
+      $this.off('click.chocolat').on('click.chocolat', function(e) {
+        that.init(i)
+        e.preventDefault()
+      })
     })
 
     return this
