@@ -21,7 +21,7 @@
     this.id = nextId++
     this.opts = opts
     this.ready = false
-    this.images = []
+    this.images = opts.images || []
     this.currentImage = null
     this.isFullScreen = false
     this.initialZoomState = null
