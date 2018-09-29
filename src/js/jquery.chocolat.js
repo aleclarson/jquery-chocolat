@@ -27,6 +27,7 @@
     this.currentImage = null
     this.isFullScreen = false
     this.initialZoomState = null
+    this.loaderDelay = null
     this.eventNS = '.chocolat-' + this.id
 
     if (!this.opts.setTitle && $el.data(cssPre + 'title')) {
@@ -117,7 +118,7 @@
 
     appear: function(i) {
       var self = this
-      clearTimeout(this.opts.timer)
+      clearTimeout(this.loaderDelay)
       function showImage() {
         self.$img.attr('src', self.opts.images[i].src)
       }
@@ -352,9 +353,9 @@
       this.$container.addClass(cssPre + 'open')
 
       if (this.$loader) {
-        this.opts.timer = setTimeout(function() {
+        this.loaderDelay = setTimeout(function() {
           self.$loader.fadeIn()
-        }, this.opts.duration)
+        }, this.opts.duration + 50)
       }
 
       var deferred = this.preload(i)
@@ -649,8 +650,6 @@
     duration: 300,
     setTitle: '',
     separator2: '/',
-    timer: false,
-    timerDebounce: false,
     images: [],
     enableZoom: true,
     showLoader: true,
