@@ -244,7 +244,7 @@
           fn = debounce(fn)
         }
         self._events.push({
-          $target: $(target).on(type + this.eventNS, fn.bind(self)),
+          $target: $(target).on(type + self.eventNS, fn.bind(self)),
           type: type,
         })
       }
