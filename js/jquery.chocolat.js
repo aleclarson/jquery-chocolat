@@ -33,7 +33,10 @@
     }
 
     this.$el = $el
-    this.$sources = $el.find(opts.imageSelector)
+    this.$sources =
+      typeof opts.imageSelector == 'string'
+        ? $el.find(opts.imageSelector)
+        : $(opts.imageSelector)
 
     var self = this
     if (opts.images == null) {
