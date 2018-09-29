@@ -364,18 +364,18 @@
       if (this.currentImage === i) return
       this.currentImage = i
 
-      // Hide previous image after short delay
-      var changeDelay = setTimeout(function() {
-        this.$img[0].src = ''
-      }, 200)
-
       this.description()
       this.arrows()
       if (this.$pagination) {
         this.pagination()
       }
 
+      // Hide previous image after short delay
       var self = this
+      var changeDelay = setTimeout(function() {
+        self.$img[0].src = ''
+      }, 200)
+
       if (this.$loader) {
         // Fade in loader after short delay
         this.loaderDelay = setTimeout(function() {
