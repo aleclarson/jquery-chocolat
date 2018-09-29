@@ -180,7 +180,7 @@
         class: cssPre + 'overlay',
       }).appendTo(this.$wrapper)
 
-      if (this.opts.showLoader) {
+      if (!this.opts.hideLoader) {
         this.$loader = $('<div/>', {
           class: cssPre + 'loader',
         }).appendTo(this.$wrapper)
@@ -657,7 +657,7 @@
     duration: 300,
     setTitle: '',
     enableZoom: true,
-    showLoader: true,
+    hideLoader: false,
     showPagination: true,
     zoomedPaddingX: function(canvasWidth, imgWidth) {
       return 0
