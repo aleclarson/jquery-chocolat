@@ -70,7 +70,12 @@
           this.opts.onMount(this)
         }
       }
-      return this.load(i)
+      if (this.currentImage == null) {
+        this.$overlay.fadeIn(this.opts.duration)
+        this.$wrapper.fadeIn(this.opts.duration)
+        this.$container.addClass(cssPre + 'open')
+      }
+      return this._load(i)
     },
 
     close: function(callback) {
@@ -98,14 +103,14 @@
       var requestedImage = this.currentImage + parseInt(delta)
       if (requestedImage >= imageCount) {
         if (this.opts.loop) {
-          return this.load(0)
+          return this._load(0)
         }
       } else if (requestedImage < 0) {
         if (this.opts.loop) {
-          return this.load(imageCount - 1)
+          return this._load(imageCount - 1)
         }
       } else {
-        return this.load(requestedImage)
+        return this._load(requestedImage)
       }
     },
 
@@ -154,7 +159,6 @@
 
     markup: function() {
       this.$container = $(this.opts.container)
-      this.$container.addClass(cssPre + 'open')
 
       if (this.opts.imageSize == 'cover') {
         this.$container.addClass(cssPre + 'cover')
@@ -337,16 +341,23 @@
      * Image loading
      */
 
-    load: function(i) {
+    preload: function(i) {
+      var def = $.Deferred()
+      if (i in this.images) {
+        var imgLoader = new Image()
+        imgLoader.onload = function() {
+          def.resolve(imgLoader)
+        }
+        imgLoader.src = this.images[i].src
+      } else {
+        def.reject(new Error('Invalid image index: ' + i))
+      }
+      return def
+    },
+
+    _load: function(i) {
       if (this.opts.fullScreen == true) {
         this.openFullScreen()
-      }
-
-      var isReveal = this.currentImage == null
-      if (isReveal) {
-        this.$overlay.fadeIn(this.opts.duration)
-        this.$wrapper.fadeIn(this.opts.duration)
-        this.$container.addClass(cssPre + 'open')
       }
 
       if (this.currentImage === i) return
@@ -364,10 +375,9 @@
       var self = this
       if (this.$loader) {
         // Fade in loader after short delay
-        var delay = 100 + (isReveal ? this.opts.duration : 0)
         this.loaderDelay = setTimeout(function() {
           self.$loader.fadeIn()
-        }, delay)
+        }, 200)
       }
 
       var deferred = this.preload(i)
@@ -390,21 +400,6 @@
       }
 
       return deferred
-    },
-
-    preload: function(i) {
-      var def = $.Deferred()
-
-      if (typeof this.images[i] === 'undefined') {
-        return
-      }
-      var imgLoader = new Image()
-      imgLoader.onload = function() {
-        def.resolve(imgLoader)
-      }
-      imgLoader.src = this.images[i].src
-
-      return def
     },
 
     /**
