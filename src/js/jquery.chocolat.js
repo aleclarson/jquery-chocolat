@@ -108,18 +108,8 @@
     },
 
     place: function(i, imgLoader) {
-      var self = this
-
-      this.currentImage = i
-      this.description()
-      this.arrows()
-      if (this.$pagination) {
-        this.pagination()
-      }
-
       this.storeImgSize(imgLoader, i)
-
-      var dims = this.fit(i, self.$wrapper)
+      var dims = this.fit(i, this.$wrapper)
       return this.center(dims.width, dims.height, dims.left, dims.top, 0)
     },
 
@@ -347,19 +337,30 @@
      */
 
     load: function(i) {
-      var self = this
       if (this.opts.fullScreen == true) {
         this.openFullScreen()
       }
 
-      if (this.currentImage === i) {
-        return
+      var isReveal = this.currentImage == null
+      if (isReveal) {
+        this.$overlay.fadeIn(this.opts.duration)
+        this.$wrapper.fadeIn(this.opts.duration)
+        this.$container.addClass(cssPre + 'open')
       }
 
-      this.$overlay.fadeIn(this.opts.duration)
-      this.$wrapper.fadeIn(this.opts.duration)
-      this.$container.addClass(cssPre + 'open')
+      if (this.currentImage === i) return
+      this.currentImage = i
 
+      // Hide previous image while loading
+      self.$img.attr('src', '#')
+
+      this.description()
+      this.arrows()
+      if (this.$pagination) {
+        this.pagination()
+      }
+
+      var self = this
       if (this.$loader) {
         this.loaderDelay = setTimeout(function() {
           self.$loader.fadeIn()
