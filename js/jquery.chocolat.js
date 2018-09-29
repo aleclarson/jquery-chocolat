@@ -11,7 +11,7 @@
   // Classes which should be removed upon destroy.
   var transientClasses = [
     cssPre + 'open',
-    cssPre + 'in-container',
+    cssPre + 'contained',
     cssPre + 'cover',
     cssPre + 'zoomable',
     cssPre + 'zoomed',
@@ -158,15 +158,12 @@
      */
 
     markup: function() {
-      this.$container = this.opts.container
-        ? $(this.opts.container)
-        : $('<div class="chocolat-wrapper">').appendTo(this.$el)
-
+      this.$container = $(this.opts.container)
       if (this.opts.imageSize == 'cover') {
         this.$container.addClass(cssPre + 'cover')
       }
-      if (this.opts.container !== window) {
-        this.$container.addClass(cssPre + 'in-container')
+      if (!this.$container.is('body')) {
+        this.$container.addClass(cssPre + 'contained')
       }
 
       this.$wrapper = $('<div/>', {
@@ -649,6 +646,7 @@
   }
 
   var defaults = {
+    container: 'body',
     imageSelector: '.chocolat-image',
     imageSource: 'href',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'

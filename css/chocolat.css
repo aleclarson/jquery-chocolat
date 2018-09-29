@@ -145,23 +145,18 @@
 }
 
 /* no container mode*/
-body.chocolat-open > .chocolat-overlay {
-  z-index: 15;
-}
-body.chocolat-open > .chocolat-loader {
-  z-index: 15;
-}
-body.chocolat-open > .chocolat-content {
-  z-index: 17;
+body > .chocolat-wrapper {
+  width: 100vw;
+  height: 100vh;
 }
 
 /* container mode*/
-.chocolat-in-container .chocolat-wrapper,
-.chocolat-in-container .chocolat-content,
-.chocolat-in-container .chocolat-overlay {
+.chocolat-contained .chocolat-wrapper,
+.chocolat-contained .chocolat-content,
+.chocolat-contained .chocolat-overlay {
   position: absolute;
 }
-.chocolat-in-container {
+.chocolat-contained {
   position: relative;
 }
 
