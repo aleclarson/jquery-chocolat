@@ -5,7 +5,7 @@
     factory(jQuery, window, document)
   }
 })(function($, window, document, undefined) {
-  var calls = 0
+  var nextId = 1
 
   // Classes which should be removed upon destroy.
   var transientClasses = [
@@ -19,6 +19,7 @@
   function Chocolat($el, opts) {
     var self = this
 
+    this.id = nextId++
     this.$el = $el
     this.opts = opts
     this.initialized = false
@@ -333,7 +334,7 @@
 
       this.$wrapper = $('<div/>', {
         class: 'chocolat-wrapper',
-        id: 'chocolat-content-' + this.opts.setIndex,
+        id: 'chocolat-content-' + this.id,
       }).appendTo(this.$container)
 
       this.$overlay = $('<div/>', {
@@ -673,7 +674,6 @@
     duration: 300,
     setTitle: '',
     separator2: '/',
-    setIndex: 0,
     timer: false,
     timerDebounce: false,
     images: [],
@@ -692,10 +692,7 @@
   $.fn.Chocolat = function(opts) {
     return this.each(function() {
       if (!$.data(this, 'chocolat')) {
-        var instance = new Chocolat(
-          $(this),
-          $.extend(true, {}, defaults, opts, { setIndex: ++calls })
-        )
+        var instance = new Chocolat($(this), $.extend(true, {}, defaults, opts))
         $.data(this, 'chocolat', instance)
       }
     })
