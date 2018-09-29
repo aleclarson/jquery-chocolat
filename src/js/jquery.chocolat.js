@@ -236,7 +236,7 @@
     },
 
     change: function(delta) {
-      this.zoomOut(0)
+      this.zoomOut(null, 0)
       this.zoomable()
 
       var imageCount = this.opts.images.length
