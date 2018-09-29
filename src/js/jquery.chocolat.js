@@ -6,14 +6,15 @@
   }
 })(function($, window, document, undefined) {
   var nextId = 1
+  var cssPre = 'chocolat-'
 
   // Classes which should be removed upon destroy.
   var transientClasses = [
-    'chocolat-open',
-    'chocolat-in-container',
-    'chocolat-cover',
-    'chocolat-zoomable',
-    'chocolat-zoomed',
+    cssPre + 'open',
+    cssPre + 'in-container',
+    cssPre + 'cover',
+    cssPre + 'zoomable',
+    cssPre + 'zoomed',
   ]
 
   function Chocolat($el, opts) {
@@ -28,8 +29,8 @@
     this.initialZoomState = null
     this.eventNS = '.chocolat-' + this.id
 
-    if (!this.opts.setTitle && $el.data('chocolat-title')) {
-      this.opts.setTitle = $el.data('chocolat-title')
+    if (!this.opts.setTitle && $el.data(cssPre + 'title')) {
+      this.opts.setTitle = $el.data(cssPre + 'title')
     }
 
     this.$el.find(this.opts.imageSelector).each(function() {
@@ -90,7 +91,7 @@
 
       this.$overlay.fadeIn(this.opts.duration)
       this.$wrapper.fadeIn(this.opts.duration)
-      this.$container.addClass('chocolat-open')
+      this.$container.addClass(cssPre + 'open')
 
       if (this.opts.showLoader) {
         this.opts.timer = setTimeout(function() {
@@ -332,76 +333,76 @@
     },
 
     markup: function() {
-      this.$container.addClass('chocolat-open ' + this.opts.className)
+      this.$container.addClass(cssPre + 'open ' + this.opts.className)
       if (this.opts.imageSize == 'cover') {
-        this.$container.addClass('chocolat-cover')
+        this.$container.addClass(cssPre + 'cover')
       }
       if (this.opts.container !== window) {
-        this.$container.addClass('chocolat-in-container')
+        this.$container.addClass(cssPre + 'in-container')
       }
 
       this.$wrapper = $('<div/>', {
-        class: 'chocolat-wrapper',
-        id: 'chocolat-content-' + this.id,
+        class: cssPre + 'wrapper',
+        id: cssPre + 'content-' + this.id,
       }).appendTo(this.$container)
 
       this.$overlay = $('<div/>', {
-        class: 'chocolat-overlay',
+        class: cssPre + 'overlay',
       }).appendTo(this.$wrapper)
 
       if (this.opts.showLoader) {
         this.$loader = $('<div/>', {
-          class: 'chocolat-loader',
+          class: cssPre + 'loader',
         }).appendTo(this.$wrapper)
       }
 
       this.$content = $('<div/>', {
-        class: 'chocolat-content',
+        class: cssPre + 'content',
       }).appendTo(this.$wrapper)
 
       this.$img = $('<img/>', {
-        class: 'chocolat-img',
+        class: cssPre + 'img',
         src: '',
       }).appendTo(this.$content)
 
       this.$top = $('<div/>', {
-        class: 'chocolat-top',
+        class: cssPre + 'top',
       }).appendTo(this.$wrapper)
 
       this.$prev = $('<div/>', {
-        class: 'chocolat-left',
+        class: cssPre + 'left',
       }).appendTo(this.$wrapper)
 
       this.$next = $('<div/>', {
-        class: 'chocolat-right',
+        class: cssPre + 'right',
       }).appendTo(this.$wrapper)
 
       this.$bottom = $('<div/>', {
-        class: 'chocolat-bottom',
+        class: cssPre + 'bottom',
       }).appendTo(this.$wrapper)
 
       this.$close = $('<span/>', {
-        class: 'chocolat-close',
+        class: cssPre + 'close',
       }).appendTo(this.$top)
 
       if (this.opts.fullScreen !== false) {
         this.$fullscreen = $('<span/>', {
-          class: 'chocolat-fullscreen',
+          class: cssPre + 'fullscreen',
         }).appendTo(this.$bottom)
       }
 
       this.$description = $('<span/>', {
-        class: 'chocolat-description',
+        class: cssPre + 'description',
       }).appendTo(this.$bottom)
 
       if (this.opts.showPagination) {
         this.$pagination = $('<span/>', {
-          class: 'chocolat-pagination',
+          class: cssPre + 'pagination',
         }).appendTo(this.$bottom)
       }
 
       this.$setTitle = $('<span/>', {
-        class: 'chocolat-set-title',
+        class: cssPre + 'set-title',
         html: this.opts.setTitle,
       }).appendTo(this.$bottom)
 
@@ -499,7 +500,7 @@
         on(this.$wrapper, 'click', this.zoomOut)
         on(this.$img, 'click', function(e) {
           if (this.initialZoomState !== null) return
-          if (this.$container.hasClass('chocolat-zoomable')) {
+          if (this.$container.hasClass(cssPre + 'zoomable')) {
             e.stopPropagation()
             this.zoomIn(e)
           }
@@ -565,9 +566,9 @@
         this.$img.height() > currentImage.height
 
       if (isImageZoomable && !isImageStretched) {
-        this.$container.addClass('chocolat-zoomable')
+        this.$container.addClass(cssPre + 'zoomable')
       } else {
-        this.$container.removeClass('chocolat-zoomable')
+        this.$container.removeClass(cssPre + 'zoomable')
       }
     },
 
@@ -581,7 +582,7 @@
       event.duration = this.opts.duration
       this.$wrapper.trigger(event)
 
-      this.$container.addClass('chocolat-zoomed')
+      this.$container.addClass(cssPre + 'zoomed')
       var fitting = this.fit(this.currentImage, this.$wrapper)
       return this.center(
         fitting.width,
@@ -601,7 +602,7 @@
       this.initialZoomState = null
       this.$img.animate({ margin: 0 }, duration)
 
-      this.$container.removeClass('chocolat-zoomed')
+      this.$container.removeClass(cssPre + 'zoomed')
       var fitting = this.fit(this.currentImage, this.$wrapper)
       return this.center(
         fitting.width,
