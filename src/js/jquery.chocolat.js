@@ -664,7 +664,10 @@
     },
   }
 
-  $.fn.Chocolat = function(opts) {
+  $.fn.chocolat = function(opts) {
+    if (arguments.length == 0) {
+      return $.data(this[0], 'chocolat')
+    }
     return this.each(function() {
       if (!$.data(this, 'chocolat')) {
         var instance = new Chocolat($(this), $.extend(true, {}, defaults, opts))
