@@ -118,8 +118,10 @@
 
       this.opts.currentImage = i
       this.description()
-      this.pagination()
       this.arrows()
+      if (this.opts.showPagination) {
+        this.pagination()
+      }
 
       this.storeImgSize(imgLoader, i)
       fitting = this.fit(i, self.$wrapper)
@@ -259,7 +261,7 @@
       var last = this.opts.lastImage + 1
       var position = this.opts.currentImage + 1
 
-      this.$pagination.html(position + ' ' + self.opts.separator2 + last)
+      this.$pagination.html(position + ' / ' + last)
     },
 
     storeImgSize: function(img, i) {
@@ -375,9 +377,11 @@
         class: 'chocolat-description',
       }).appendTo(this.$bottom)
 
-      this.$pagination = $('<span/>', {
-        class: 'chocolat-pagination',
-      }).appendTo(this.$bottom)
+      if (this.opts.showPagination) {
+        this.$pagination = $('<span/>', {
+          class: 'chocolat-pagination',
+        }).appendTo(this.$bottom)
+      }
 
       this.$setTitle = $('<span/>', {
         class: 'chocolat-set-title',
@@ -671,6 +675,7 @@
     timerDebounce: false,
     images: [],
     enableZoom: true,
+    showPagination: true,
     imageSource: 'href',
     afterInitialize: function() {},
     afterMarkup: function() {},
