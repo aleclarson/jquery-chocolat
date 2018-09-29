@@ -198,11 +198,11 @@
       }).appendTo(this.$wrapper)
 
       this.$prev = $('<div/>', {
-        class: cssPre + 'left',
+        class: cssPre + 'prev',
       }).appendTo(this.$wrapper)
 
       this.$next = $('<div/>', {
-        class: cssPre + 'right',
+        class: cssPre + 'next',
       }).appendTo(this.$wrapper)
 
       this.$bottom = $('<div/>', {

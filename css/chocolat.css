@@ -53,7 +53,7 @@
   width: 100%;
   height: 100%;
 }
-.chocolat-wrapper .chocolat-left {
+.chocolat-wrapper .chocolat-prev {
   position: absolute;
   left: 0;
   width: 50px;
@@ -65,7 +65,7 @@
   z-index: 100;
   display: none;
 }
-.chocolat-wrapper .chocolat-right {
+.chocolat-wrapper .chocolat-next {
   position: absolute;
   right: 0;
   width: 50px;
@@ -77,10 +77,10 @@
   z-index: 100;
   display: none;
 }
-.chocolat-wrapper .chocolat-right.active {
+.chocolat-wrapper .chocolat-next.active {
   display: block;
 }
-.chocolat-wrapper .chocolat-left.active {
+.chocolat-wrapper .chocolat-prev.active {
   display: block;
 }
 .chocolat-wrapper .chocolat-top {
@@ -171,17 +171,17 @@ body.chocolat-open > .chocolat-content {
 /*
 .chocolat-zoomable .chocolat-top,
 .chocolat-zoomable .chocolat-bottom,
-.chocolat-zoomable .chocolat-right,
-.chocolat-zoomable .chocolat-left {
-    transition: opacity .3s ease, visibility 0s .3s;
-   opacity: 1;
+.chocolat-zoomable .chocolat-next,
+.chocolat-zoomable .chocolat-prev {
+  transition: opacity 0.3s ease, visibility 0s 0.3s;
+  opacity: 1;
 }
 
 .chocolat-zoomable.chocolat-zoomed .chocolat-top,
 .chocolat-zoomable.chocolat-zoomed .chocolat-bottom,
-.chocolat-zoomable.chocolat-zoomed .chocolat-right,
-.chocolat-zoomable.chocolat-zoomed .chocolat-left {
-    visibility: hidden;
-    opacity: 0;
+.chocolat-zoomable.chocolat-zoomed .chocolat-next,
+.chocolat-zoomable.chocolat-zoomed .chocolat-prev {
+  visibility: hidden;
+  opacity: 0;
 }
 */
