@@ -672,6 +672,7 @@
     enableZoom: false,
     hideLoader: false,
     hidePagination: false,
+    backgroundClose: true,
     zoomedPaddingX: function(canvasWidth, imgWidth) {
       return 0
     },
