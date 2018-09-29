@@ -362,8 +362,10 @@
       if (this.currentImage === i) return
       this.currentImage = i
 
-      // Hide previous image while loading
-      this.$img.attr('src', '#')
+      // Hide previous image after short delay
+      var changeDelay = setTimeout(function() {
+        this.$img[0].src = ''
+      }, 200)
 
       this.description()
       this.arrows()
@@ -384,6 +386,7 @@
           return self.place(i, imgLoader)
         })
         .then(function(imgLoader) {
+          clearTimeout(changeDelay)
           return self.appear(i)
         })
         .then(function(imgLoader) {
