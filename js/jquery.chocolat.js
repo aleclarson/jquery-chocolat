@@ -129,7 +129,7 @@
       }
       if (this.$loader) {
         clearTimeout(this.loaderDelay)
-        this.$loader.stop().fadeOut(300, showImage)
+        this.$loader.stop().fadeOut(200, showImage)
       } else {
         showImage()
       }
