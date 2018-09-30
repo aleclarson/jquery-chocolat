@@ -152,6 +152,7 @@
       var self = this
       function showImage() {
         self.$img.attr('src', self.images[i].src)
+        self.$img.css('display', '')
         self.zoomable()
         if (self.opts.onReveal) {
           self.opts.onReveal(self)
@@ -412,7 +413,7 @@
       var self = this
       var removeDelay = setTimeout(removePrevImage, 200)
       function removePrevImage() {
-        self.$img[0].src = ''
+        self.$img.css('display', 'none')
         if (self.opts.onHide) {
           self.opts.onHide(self)
         }
