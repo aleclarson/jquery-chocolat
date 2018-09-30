@@ -55,6 +55,12 @@
           return $source.attr('data-orig') || $source.attr('src')
         }
       }
+      var getImageTitle = function($source) {
+        if (typeof opts.imageTitle == 'function') {
+          return opts.imageTitle($source)
+        }
+        return $source.attr('title')
+      }
       this.$sources.each(function(i) {
         var $source = $(this)
         if (opts.configureImage) {
@@ -65,7 +71,7 @@
         var src = getImageURL($source)
         src &&
           self.images.push({
-            title: $source.attr('title'),
+            title: getImageTitle($source),
             src: src,
             height: false,
             width: false,
