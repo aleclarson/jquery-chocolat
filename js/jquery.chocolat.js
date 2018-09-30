@@ -79,7 +79,7 @@
 
     $el.on('click' + self.eventNS, opts.imageSelector, function(e) {
       e.preventDefault()
-      self.open(self.$sources.index(this))
+      self.open(self.$sources.index(e.target))
     })
 
     return this
