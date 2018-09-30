@@ -518,6 +518,23 @@
         }
       }
 
+      var maxImageHeight = this.opts.maxImageHeight
+      if (typeof maxImageHeight == 'string') {
+        if (maxImageHeight.endsWith('%')) {
+          maxImageHeight = (holderHeight * parseInt(maxImageHeight)) / 100
+        } else if (maxImageHeight.endsWith('vh')) {
+          maxImageHeight = (window.innerHeight * parseInt(maxImageHeight)) / 100
+        } else {
+          maxImageHeight = parseInt(maxHeight)
+        }
+      }
+      if (typeof maxImageHeight == 'number' && !isNaN(maxImageHeight)) {
+        if (height > maxImageHeight) {
+          height = maxImageHeight
+          width = height / imgRatio
+        }
+      }
+
       return {
         height: height,
         width: width,
