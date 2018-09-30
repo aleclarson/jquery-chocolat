@@ -86,7 +86,12 @@
 
     $el.on('click' + self.eventNS, opts.imageSelector, function(e) {
       e.preventDefault()
-      self.open(self.$sources.index(e.target))
+      var $branch = $(e.target)
+        .parents()
+        .add(e.target)
+      // Use the source that is closest to the target.
+      var $source = self.$sources.filter($branch).last()
+      self.open(self.$sources.index($source))
     })
 
     return this
