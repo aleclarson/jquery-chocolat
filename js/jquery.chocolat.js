@@ -73,6 +73,10 @@
       })
     }
 
+    if (this.images.length == 0) {
+      console.warn('No images in this collection:', this)
+    }
+
     $el.on('click' + self.eventNS, opts.imageSelector, function(e) {
       e.preventDefault()
       self.open(self.$sources.index(this))
