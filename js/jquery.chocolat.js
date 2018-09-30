@@ -716,18 +716,13 @@
   }
 
   var defaults = {
+    backgroundClose: true,
     container: 'body',
+    duration: 300,
     imageSelector: '.chocolat-image',
     imageSize: 'default', // 'default', 'contain', 'cover' or 'native'
-    fullScreen: null,
-    loop: false,
     linkImages: true,
-    duration: 300,
     setTitle: '',
-    enableZoom: false,
-    hideLoader: false,
-    hidePagination: false,
-    backgroundClose: true,
     zoomedPaddingX: function(canvasWidth, imgWidth) {
       return 0
     },
