@@ -210,7 +210,11 @@
         class: cssPre + 'overlay',
       }).appendTo(this.$wrapper)
 
-      if (!this.opts.hideLoader) {
+      if (typeof this.opts.loader == 'function') {
+        this.$loader = $(this.opts.loader(this))
+          .addClass(cssPre + 'loader')
+          .appendTo(this.$wrapper)
+      } else if (this.opts.loader !== false) {
         this.$loader = $('<div/>', {
           class: cssPre + 'loader',
         }).appendTo(this.$wrapper)
