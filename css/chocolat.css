@@ -28,14 +28,11 @@
   cursor: zoom-in;
 }
 .chocolat-loader {
-  height: 32px;
-  width: 32px;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 20;
-  background: url(../images/loader.gif);
   display: none;
 }
 .chocolat-content {
