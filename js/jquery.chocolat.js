@@ -384,13 +384,18 @@
     preload: function(i) {
       var def = $.Deferred()
       if (i in this.images) {
-        var imgLoader = new Image()
-        imgLoader.onload = function() {
-          def.resolve(imgLoader)
+        var src = this.images[i].src
+        if (src == null) {
+          console.warn('Missing image:', i, this)
+        } else {
+          var img = new Image()
+          img.onload = function() {
+            def.resolve(img)
+          }
+          img.src = src
         }
-        imgLoader.src = this.images[i].src
       } else {
-        def.reject(new Error('Invalid image index: ' + i))
+        console.warn('Image index out of bounds:', i, this)
       }
       return def
     },
@@ -398,6 +403,11 @@
     _load: function(i) {
       if (this.opts.fullScreen == true) {
         this.openFullScreen()
+      }
+
+      if (!(i in this.images)) {
+        console.warn('Image index out of bounds:', i, this)
+        return
       }
 
       if (this.currentImage === i) return
