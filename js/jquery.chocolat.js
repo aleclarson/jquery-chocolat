@@ -41,12 +41,13 @@
     var self = this
     if (opts.images == null) {
       var getImageURL = function($source) {
-        if (opts.imageSource == null) return
-        if (typeof opts.imageSource == 'function') {
-          return opts.imageSource($source)
-        }
-        if (typeof opts.imageSource == 'string') {
-          return $source.attr(opts.imageSource)
+        if (opts.imageSource) {
+          if (typeof opts.imageSource == 'function') {
+            return opts.imageSource($source)
+          }
+          if (typeof opts.imageSource == 'string') {
+            return $source.attr(opts.imageSource)
+          }
         }
         if ($source.is('a')) {
           return $source.attr('href')
